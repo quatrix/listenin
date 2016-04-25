@@ -57,17 +57,17 @@ class ListenIn(object):
         )
 
         for p in arecord_process, lame_process:
-            rc = arecord_process.wait()
-            logging.info('arecord process returned: %d', rc)
+            logging.info('waiting for %r to end', p)
+            stdout, stderr = p.communicate()
+            rc = p.returncode
+
+            logging.info('%r process returned: %d', p, rc)
 
             if rc != 0:
-                raise RuntimeError(
-                    'failed to record: %r %r',
-                    p.stderr.read(),
-                )
+                raise RuntimeError('failed to record: %r %r', rc, stderr)
 
-        logging.info('sample ready')
-        return lame_process.stdout.read()
+        logging.info('sample ready (len: %d)', len(stdout))
+        return stdout
 
     def upload_sample(self, sample):
         url = 'http://mimosabox.com:55669/upload/{}/'.format(self.boxid)
