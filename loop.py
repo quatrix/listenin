@@ -24,6 +24,7 @@ class ListenIn(object):
 
     def listen(self):
         while True:
+            t0 = time.time()
             self.led.blink()
 
             try:
@@ -35,7 +36,10 @@ class ListenIn(object):
             else:
                 logging.info('sample recorded and uploaded, sleeping for %d seconds', self.interval)
                 self.led.set('green')
-                time.sleep(self.interval)
+
+                sleep_time = self.interval - (time.time() - t0)
+                if sleep_time >= 0;
+                    time.sleep(sleep_time)
         
     def record_sample(self):
         arecord_args = 'arecord -D plughw:1,0 -f cd -t raw -d {}'.format(self.duration)
