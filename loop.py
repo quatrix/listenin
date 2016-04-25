@@ -39,35 +39,29 @@ class ListenIn(object):
         
     def record_sample(self):
         arecord_args = 'arecord -D plughw:1,0 -f cd -t raw -d {}'.format(self.duration)
-        lame_args = 'lame -r -h -V 0 - -'
+        lame_args = 'lame -r -h -V 0 - /tmp/sample.mp3'
 
         logging.debug(arecord_args)
 
         arecord_process = subprocess.Popen(
             arecord_args.split(),
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
         )
 
         lame_process = subprocess.Popen(
             lame_args.split(),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
             stdin=arecord_process.stdout
         )
 
         for p in arecord_process, lame_process:
             logging.info('waiting for %r to end', p)
-            stdout, stderr = p.communicate()
-            rc = p.returncode
+            rc = p.wait()
+            logging.info('%r process returned: %d', p, p.returncode)
 
-            logging.info('%r process returned: %d', p, rc)
+            if p.returncode != 0:
+                raise RuntimeError('failed to record: %r', rc)
 
-            if rc != 0:
-                raise RuntimeError('failed to record: %r %r', rc, stderr)
-
-        logging.info('sample ready (len: %d)', len(stdout))
-        return stdout
+        return open('/tmp/sample.mp3', 'rb').read()
 
     def upload_sample(self, sample):
         url = 'http://mimosabox.com:55669/upload/{}/'.format(self.boxid)
