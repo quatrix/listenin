@@ -71,8 +71,7 @@ class ListenIn(object):
 
     def upload_sample(self, sample):
         url = 'http://mimosabox.com:55669/upload/{}/'.format(self.boxid)
-        files = {'file': ('sample.mp3', sample, 'audio/mpeg')}
-        requests.post(url, files=files)
+        requests.post(url, data=sample)
 
 
 @click.command()
