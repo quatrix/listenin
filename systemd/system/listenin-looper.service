@@ -1,0 +1,13 @@
+
+[Unit]
+DefaultDependencies=false
+Description=ListenIn Looper service
+After=local-fs-pre.target
+Before=local-fs.target
+
+[Service]
+ExecStart=/home/pi/listenin/.pyenv/bin/python /home/pi/listenin/loop.py --boxid BOXID
+Restart=always
+
+[Install]
+WantedBy=local-fs.target

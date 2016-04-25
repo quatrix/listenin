@@ -1,4 +1,6 @@
 import RPi.GPIO as GPIO
+import logging
+import time
 
 class LED(object):
     _colors = {
