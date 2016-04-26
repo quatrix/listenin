@@ -43,7 +43,7 @@ class ListenIn(object):
         
     def record_sample(self):
         arecord_args = 'arecord -D plughw:1,0 -f cd -t raw -d {}'.format(self.duration)
-        lame_args = 'lame -r -h -V 0 - /tmp/sample.mp3'
+        lame_args = 'lame -r -h -V 0 - -'
 
         logging.debug(arecord_args)
 
@@ -57,15 +57,17 @@ class ListenIn(object):
             stdin=arecord_process.stdout
         )
 
+        arecord_process.stdout.close()
+
+        sample = lame_process.communicate()[0]
+
         for p in arecord_process, lame_process:
-            logging.info('waiting for %r to end', p)
-            rc = p.wait()
             logging.info('%r process returned: %d', p, p.returncode)
 
             if p.returncode != 0:
                 raise RuntimeError('failed to record: %r', rc)
 
-        return open('/tmp/sample.mp3', 'rb').read()
+        return sample
 
     def upload_sample(self, sample):
         url = 'http://mimosabox.com:55669/upload/{}/'.format(self.boxid)
