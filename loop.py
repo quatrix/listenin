@@ -38,7 +38,7 @@ class ListenIn(object):
                 self.led.set('green')
 
                 sleep_time = self.interval - (time.time() - t0)
-                if sleep_time >= 0;
+                if sleep_time >= 0:
                     time.sleep(sleep_time)
         
     def record_sample(self):
@@ -54,7 +54,8 @@ class ListenIn(object):
 
         lame_process = subprocess.Popen(
             lame_args.split(),
-            stdin=arecord_process.stdout
+            stdin=arecord_process.stdout,
+            stdout=subprocess.PIPE,
         )
 
         arecord_process.stdout.close()
@@ -62,9 +63,11 @@ class ListenIn(object):
         sample = lame_process.communicate()[0]
 
         for p in arecord_process, lame_process:
-            logging.info('%r process returned: %d', p, p.returncode)
+            rc = p.wait()
+            logging.info('%r process returned: %d', p, rc)
 
-            if p.returncode != 0:
+
+            if rc != 0:
                 raise RuntimeError('failed to record: %r', rc)
 
         return sample
