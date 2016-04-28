@@ -6,6 +6,8 @@ import subprocess
 import logging
 import sys
 import requests
+from threading import Thread, Event
+from Queue import Queue, Empty
 from led import LED
 
 
@@ -20,26 +22,56 @@ class ListenIn(object):
         self.retrytime = retrytime
 
         self.led = LED(red=13, green=19, blue=26, initial_color='white')
+        self._q = Queue()
+        self.default_blink_interval = (5, 300)
+        self.fast_blinking = (0.5, 500)
+
 
     def start_blinker(self):
-        pass
+        self._blinker_stop = Event()
+        self._blinker_thread = Thread(target=self.blink_periodically)
+        self._blinker_thread.start()
+
+    def stop_blinker(self):
+        self._blinker_stop.set()
+        self._blinker_thread.join()
+
+    def blink_periodically(self):
+        last_blink_time = time.time()
+        interval, duration = self.default_blink_interval
+
+        while True:
+            if self._blinker_stop.isSet():
+                break
+
+            try:
+                interval, duration = self._q.get_nowait()
+            except Empty:
+                pass
+
+            if time.time() - last_blink_time > interval:
+                self.led.blink(duration=duration)
+                last_blink_time = time.time()
+
+            time.sleep(0.1)
 
     def listen(self):
-
-        self.start_bliner()
+        self.start_blinker()
 
         while True:
             t0 = time.time()
 
             try:
-                self.led.set('pink')
+                self.led.set('red')
                 sample = self.record_sample()
-                self.led.set('purple')
+                self.led.set('blue')
                 self.upload_sample(sample)
             except Exception:
                 logging.exception('exception while recording and uploading')
-                self.led.set('red')
+                self.led.set('orange')
+                self._q.put(self.fast_blinking)
                 time.sleep(self.retrytime)
+                self._q.put(self.default_blink_interval)
             else:
                 logging.info('sample recorded and uploaded, sleeping for %d seconds', self.interval)
                 self.led.set('green')
@@ -83,6 +115,8 @@ class ListenIn(object):
         url = 'http://mimosabox.com:55669/upload/{}/'.format(self.boxid)
         requests.post(url, data=sample)
 
+    def cleanup(self):
+        self.stop_blinker()
 
 @click.command()
 @click.option('--boxid', required=True, help='Unique id for box')
@@ -90,7 +124,13 @@ class ListenIn(object):
 @click.option('--interval', default=300, help='How often to take a sample')
 @click.option('--retrytime', default=10, help='How much seconds to wait before retrying on failure')
 def main(boxid, duration, interval, retrytime):
-    ListenIn(boxid, duration, interval, retrytime).listen()
+    l = ListenIn(boxid, duration, interval, retrytime)
+    
+    try:
+        l.listen()
+    finally:
+        print('cleanup')
+        l.cleanup()
 
 if __name__ == '__main__':
     main()

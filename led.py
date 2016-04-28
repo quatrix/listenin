@@ -1,6 +1,8 @@
+from __future__ import division
 import RPi.GPIO as GPIO
 import logging
 import time
+from threading import Lock
 
 class LED(object):
     _colors = {
@@ -9,9 +11,11 @@ class LED(object):
         'pink': (255, 20, 147),
         'red': (255, 0, 0),
         'green': (0, 255, 0),
-        'orange': (255,165,0),
+        'orange': (255, 50, 0),
         'blue': (0, 0, 255),
         'purple': (255, 0, 255),
+        'teal': (0, 128, 200),
+        'gray': (1, 1, 1),
         'off': (0, 0, 0),
     }
 
@@ -30,24 +34,34 @@ class LED(object):
         self.green.start(0)
         self.blue.start(0)
 
+        self._lock = Lock()
+
 
     def _set(self, rgb):
-        rgb = [(x / 255.0) * 100 for x in rgb]
+        rgb = [100 - (x / 255.0) * 100 for x in rgb]
 
         self.red.ChangeDutyCycle(rgb[0])
-        self.red.ChangeDutyCycle(rgb[1])
-        self.red.ChangeDutyCycle(rgb[2])
+        self.green.ChangeDutyCycle(rgb[1])
+        self.blue.ChangeDutyCycle(rgb[2])
 
-    def set(self, color):
-        logging.info('setting led color to %s', color)
-        self._current_color = color
-        self._set(self._colors[color])
+    def set(self, color, lock=True):
+        try:
+            if lock:
+                self._lock.acquire()
+            logging.info('setting led color to %s', color)
+            self._current_color = color
+            self._set(self._colors[color])
+        finally:
+            if lock:
+                self._lock.release()
 
-    def blink(self, times=3, duration=100):
-        logging.info('blink')
-        for _ in xrange(times):
-            oldcolor = self._current_color
-            self.set('off')
-            time.sleep(duration/1000)
-            self.set(oldcolor)
-            time.sleep(duration/1000)
+    def blink(self, duration=100):
+        with self._lock:
+            logging.info('blink')
+
+            old_color = self._colors[self._current_color]
+            new_color = [x/2 for x in old_color]
+
+            self._set(new_color)
+            time.sleep(duration / 1000)
+            self._set(old_color)
