@@ -111,18 +111,25 @@ class ClubsHandler(BaseHandler):
     def enrich_samples(self, samples, club):
         return [{
             'date': unix_time_to_readable_date(sample),
-            'link': '{}/{}/{}.mp3'.format(
-                self.settings['samples_url'],
+            'link': '{}/uploads/{}/{}.mp3'.format(
+                self.settings['base_url'],
                 club,
                 sample
             )
         } for sample in samples]
+
+    def get_logo(self, club):
+        sizes = 'hdpi', 'mdpi', 'xhdpi', 'xxhdpi','xxxhdpi'
+        prefix = '{}/images/{}'.format(self.settings['base_url'], club)
+
+        return {size: '{}/{}.png'.format(prefix, size) for size in sizes}
 
     def get(self):
         res = {}
 
         for club in os.listdir(self.settings['samples_root']):
             res[club] = self._clubs[club]
+            res[club]['logo'] = self.get_logo(club)
             
             samples = self.get_samples(club)
             samples = self.enrich_samples(samples, club)
@@ -133,18 +140,18 @@ class ClubsHandler(BaseHandler):
 @click.command()
 @click.option('--port', default=55669, help='Port to listen on')
 @click.option('--samples-root', default='/usr/share/nginx/html/listenin/uploads/', help='Where files go')
-@click.option('--samples-url', default='http://mimosabox.com/listenin/uploads/', help='Samples base URL')
+@click.option('--base-url', default='http://mimosabox.com/listenin/', help='Base URL')
 @click.option('--n-samples', default=10, help='How many samples to return')
 @click.option('--sample-interval', default=300, help='Sampling interval')
 @click.option('--max-age', default=3600*2 , help='Oldest sample age')
-def main(port, samples_root, samples_url, n_samples, sample_interval, max_age):
+def main(port, samples_root, base_url, n_samples, sample_interval, max_age):
     app = Application([
         (r"/upload/(.+)/", UploadHandler),
         (r"/clubs", ClubsHandler),
     ], 
         debug=True,
         samples_root=samples_root,
-        samples_url=samples_url,
+        base_url=base_url,
         n_samples=n_samples,
         sample_interval=sample_interval,
         max_age=max_age,
