@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from tornado.web import Application, RequestHandler
 from tornado.ioloop import IOLoop
 from tornado.log import enable_pretty_logging
@@ -5,6 +7,7 @@ from tornado.options import parse_command_line, define, options
 from ttldict import TTLDict
 from collections import defaultdict
 from datetime import datetime
+import pytz
 import logging
 import os
 import click
@@ -39,11 +42,34 @@ def number_part_of_sample(sample):
 
 
 def unix_time_to_readable_date(t):
-    return datetime.fromtimestamp(t).strftime('%Y-%m-%d %H:%M:%S')
+    tz = pytz.timezone('Asia/Jerusalem')
+    return datetime.fromtimestamp(t, tz=tz).strftime('%Y-%m-%d %H:%M:%S')
 
 
 class ClubsHandler(BaseHandler):
     _samples = TTLDict(default_ttl=15)
+    _clubs = {
+        'radio': {
+            'name': 'Radio EPGB',
+            'details': 'A home for underground music',
+            'addess': '7 Shadal St. Tel Aviv',
+            'phone': '03-5603636',
+            'location': { 
+                'lat': 32.06303301410757, 
+                'lng': 34.775075912475586,
+            },
+        },
+        'pasaz' : {
+            'name': 'The Pasáž',
+            'details': 'The Pasáž (the Passage)',
+            'addess': '94 Allenby St. Tel Aviv',
+            'phone': '077-3323118',
+            'location': { 
+                'lat': 32.06303301410757, 
+                'lng': 34.775075912475586,
+            },
+        }
+    }
 
     def _get_samples(self, club):
         path = os.path.join(self.settings['samples_root'], club)
@@ -78,9 +104,10 @@ class ClubsHandler(BaseHandler):
         return self._samples[club]
 
     def get(self):
-        res = defaultdict(dict)
+        res = {}
 
         for club in os.listdir(self.settings['samples_root']):
+            res[club] = self._clubs[club]
             res[club]['samples'] = self.get_samples(club)
             
         self.finish(res)
