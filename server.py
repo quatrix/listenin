@@ -38,6 +38,10 @@ def number_part_of_sample(sample):
     return int(sample[:-4])
 
 
+def unix_time_to_readable_date(t):
+    return datetime.fromtimestamp(t).strftime('%Y-%m-%d %H:%M:%S')
+
+
 class ClubsHandler(BaseHandler):
     _samples = TTLDict(default_ttl=15)
 
@@ -47,7 +51,8 @@ class ClubsHandler(BaseHandler):
         samples = sorted(map(number_part_of_sample, os.listdir(path)), reverse=True)[:n_samples]
 
         return [{
-            'date': sample,
+            'date': unix_time_to_readable_date(sample),
+            'age': int(time.time() - sample),
             'link': '{}/{}/{}.mp3'.format(self.settings['samples_url'], club, sample)
         } for sample in samples]
 
@@ -56,7 +61,7 @@ class ClubsHandler(BaseHandler):
             return
 
         sample_interval = self.settings['sample_interval']
-        seconds_since_last_sample = time.time() - self._samples[club][0]['date']
+        seconds_since_last_sample = self._samples[club][0]['age']
 
         if seconds_since_last_sample > sample_interval:
             return
