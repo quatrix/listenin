@@ -56,7 +56,7 @@ class ClubsHandler(BaseHandler):
         'radio': {
             'name': 'Radio EPGB',
             'details': 'A home for underground music',
-            'addess': '7 Shadal St. Tel Aviv',
+            'address': '7 Shadal St. Tel Aviv',
             'phone': '03-5603636',
             'location': { 
                 'lat': 32.06303301410757, 
@@ -66,7 +66,7 @@ class ClubsHandler(BaseHandler):
         'pasaz' : {
             'name': 'The Pasáž',
             'details': 'The Pasáž (the Passage)',
-            'addess': '94 Allenby St. Tel Aviv',
+            'address': '94 Allenby St. Tel Aviv',
             'phone': '077-3323118',
             'location': { 
                 'lat': 32.0663031,
