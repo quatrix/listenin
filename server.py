@@ -46,6 +46,10 @@ def unix_time_to_readable_date(t):
     return datetime.fromtimestamp(t, tz=tz).strftime('%Y-%m-%d %H:%M:%S')
 
 
+def age(t):
+    return int(time.time() - t)
+
+
 class ClubsHandler(BaseHandler):
     _samples = TTLDict(default_ttl=15)
     _clubs = {
@@ -65,8 +69,8 @@ class ClubsHandler(BaseHandler):
             'addess': '94 Allenby St. Tel Aviv',
             'phone': '077-3323118',
             'location': { 
-                'lat': 32.06303301410757, 
-                'lng': 34.775075912475586,
+                'lat': 32.0663031,
+                'lng': 34.7719147,
             },
         }
     }
@@ -74,20 +78,22 @@ class ClubsHandler(BaseHandler):
     def _get_samples(self, club):
         path = os.path.join(self.settings['samples_root'], club)
         n_samples = self.settings['n_samples']
-        samples = sorted(map(number_part_of_sample, os.listdir(path)), reverse=True)[:n_samples]
+        time_now = time.time()
 
-        return [{
-            'date': unix_time_to_readable_date(sample),
-            'age': int(time.time() - sample),
-            'link': '{}/{}/{}.mp3'.format(self.settings['samples_url'], club, sample)
-        } for sample in samples]
+        samples = filter(
+            lambda x: age(x) < self.settings['max_age'],
+            map(number_part_of_sample, os.listdir(path))
+        )
+
+        return sorted(samples, reverse=True)[:n_samples]
+
 
     def _set_ttl(self, club):
         if not self._samples[club]:
             return
 
         sample_interval = self.settings['sample_interval']
-        seconds_since_last_sample = self._samples[club][0]['age']
+        seconds_since_last_sample = age(self._samples[club][0])
 
         if seconds_since_last_sample > sample_interval:
             return
@@ -102,13 +108,25 @@ class ClubsHandler(BaseHandler):
         self._set_ttl(club)
 
         return self._samples[club]
+    def enrich_samples(self, samples, club):
+        return [{
+            'date': unix_time_to_readable_date(sample),
+            'link': '{}/{}/{}.mp3'.format(
+                self.settings['samples_url'],
+                club,
+                sample
+            )
+        } for sample in samples]
 
     def get(self):
         res = {}
 
         for club in os.listdir(self.settings['samples_root']):
             res[club] = self._clubs[club]
-            res[club]['samples'] = self.get_samples(club)
+            
+            samples = self.get_samples(club)
+            samples = self.enrich_samples(samples, club)
+            res[club]['samples'] = samples
             
         self.finish(res)
 
@@ -118,7 +136,8 @@ class ClubsHandler(BaseHandler):
 @click.option('--samples-url', default='http://mimosabox.com/listenin/uploads/', help='Samples base URL')
 @click.option('--n-samples', default=10, help='How many samples to return')
 @click.option('--sample-interval', default=300, help='Sampling interval')
-def main(port, samples_root, samples_url, n_samples, sample_interval):
+@click.option('--max-age', default=3600*2 , help='Oldest sample age')
+def main(port, samples_root, samples_url, n_samples, sample_interval, max_age):
     app = Application([
         (r"/upload/(.+)/", UploadHandler),
         (r"/clubs", ClubsHandler),
@@ -128,6 +147,7 @@ def main(port, samples_root, samples_url, n_samples, sample_interval):
         samples_url=samples_url,
         n_samples=n_samples,
         sample_interval=sample_interval,
+        max_age=max_age,
     )
 
     enable_pretty_logging()
