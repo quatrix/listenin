@@ -19,16 +19,23 @@ class ListenIn(object):
         self.interval = interval
         self.retrytime = retrytime
 
-        self.led = LED(red=13, green=19, blue=26)
-        self.led.set('white')
+        self.led = LED(red=13, green=19, blue=26, initial_color='white')
+
+    def start_blinker(self):
+        pass
 
     def listen(self):
+
+        self.start_bliner()
+
         while True:
             t0 = time.time()
-            self.led.blink()
 
             try:
-                self.upload_sample(self.record_sample())
+                self.led.set('pink')
+                sample = self.record_sample()
+                self.led.set('purple')
+                self.upload_sample(sample)
             except Exception:
                 logging.exception('exception while recording and uploading')
                 self.led.set('red')
