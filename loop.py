@@ -5,6 +5,7 @@ import time
 import subprocess
 import logging
 import sys
+import os
 import requests
 from threading import Thread, Event
 from Queue import Queue, Empty
@@ -63,9 +64,10 @@ class ListenIn(object):
 
             try:
                 self.led.set('purple')
-                yield self.record_sample()
+                r = self.record_sample()
+                next(r)
                 self.led.set('red')
-                sample = yield self.record_sample()
+                sample = next(r)
                 self.led.set('blue')
                 self.upload_sample(sample)
             except Exception:
@@ -83,24 +85,43 @@ class ListenIn(object):
                     time.sleep(sleep_time)
         
     def record_sample(self):
-        rec_args = 'rec -t mp3 -C 0 - silence 1 0.1 5% 1 1.0 5% trim 0 {}'.format(self.duration)
+        output_file = '/tmp/out.mp3'
+
+        if os.path.exists(output_file):
+            os.unlink(output_file)
+
+        rec_cmd = 'rec -t mp3 -C 0 {} silence 1 0.1 5% 1 1.0 5% trim 0 {}'
+
         rec_process = subprocess.Popen(
-            rec_args.split(),
-            stdout=subprocess.PIPE,
+            rec_cmd.format(output_file, self.duration).split()
         )
 
         logging.debug('waiting for rec process to output')
-        first_byte = rec_process.stdout.read(1)
-        yield None
 
-        sample = rec_process.communicate()[0]
+        while True:
+            rc = rec_process.poll()
+
+            if rc is not None:
+                break
+
+            try:
+                if os.path.getsize(output_file) > 0:
+                    break
+            except OSError:
+                pass
+
+            time.sleep(0.1)
+
+        if rc is None:
+            yield
+
         rc = rec_process.wait()
         logging.info('process returned: %d', rc)
 
         if rc != 0:
             raise RuntimeError('failed to record: %r', rc)
 
-        yield first_byte + sample
+        yield open(output_file).read()
 
     def upload_sample(self, sample):
         url = 'http://mimosabox.com:55669/upload/{}/'.format(self.boxid)
