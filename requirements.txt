@@ -1,4 +1,7 @@
-RPi.GPIO==0.6.2
 click==6.6
-requests==2.9.1
+prometheus-client==0.0.13
+protobuf-py3==2.5.1
+pytz==2016.4
+quantile-python==1.1
+requests==2.5.1
 tornado==4.3

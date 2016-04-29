@@ -1,17 +1,34 @@
 # -*- coding: utf-8 -*-
 
-from tornado.web import Application, RequestHandler
+from tornado.web import Application, RequestHandler, stream_request_body
 from tornado.ioloop import IOLoop
 from tornado.log import enable_pretty_logging
 from tornado.options import parse_command_line, define, options
+from prometheus_client import Summary, generate_latest
 from ttldict import TTLDict
 from collections import defaultdict
 from datetime import datetime
+from tempfile import NamedTemporaryFile
 import pytz
 import logging
 import os
 import click
 import time
+
+UPLOAD_TIME = Summary(
+    'upload_request_seconds',
+    'Time spent uploading'
+)
+
+GET_CLUBS_TIME = Summary(
+    'get_clubs_request_seconds',
+    'Time spent getting clubs'
+)
+
+
+class MetricsHandler(RequestHandler):
+    def get(self):
+        self.write(generate_latest())
 
 
 class BaseHandler(RequestHandler):
@@ -24,8 +41,15 @@ class BaseHandler(RequestHandler):
         self.finish()
             
 
+@stream_request_body
 class UploadHandler(BaseHandler):
+    def initialize(self):
+        self.t0 = None
+        self.fh = NamedTemporaryFile(delete=False)
+
     def post(self, boxid):
+        UPLOAD_TIME.observe(time.time() - self.t0)
+
         samples_dir = os.path.join(self.settings['samples_root'], boxid)
         sample_path = os.path.join(samples_dir, '{}.mp3'.format(int(time.time())))
         logging.info('sample from boxid: %s -> %s', boxid, sample_path)
@@ -33,8 +57,15 @@ class UploadHandler(BaseHandler):
         if not os.path.isdir(samples_dir):
             os.mkdir(samples_dir)
 
-        with open(sample_path, 'wb+') as f:
-            f.write(self.request.body)
+        logging.info('moving %s -> %s', self.fh.name, sample_path)
+        os.rename(self.fh.name, sample_path)
+
+    def data_received(self, data):
+        if self.t0 is None:
+            self.t0 = time.time()
+
+        self.fh.write(data)
+
 
 
 def number_part_of_sample(sample):
@@ -124,6 +155,7 @@ class ClubsHandler(BaseHandler):
 
         return {size: '{}/{}.png'.format(prefix, size) for size in sizes}
 
+    @GET_CLUBS_TIME.time()
     def get(self):
         res = {}
 
@@ -148,6 +180,7 @@ def main(port, samples_root, base_url, n_samples, sample_interval, max_age):
     app = Application([
         (r"/upload/(.+)/", UploadHandler),
         (r"/clubs", ClubsHandler),
+        (r"/metrics", MetricsHandler),
     ], 
         debug=True,
         samples_root=samples_root,
