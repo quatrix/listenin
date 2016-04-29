@@ -62,8 +62,10 @@ class ListenIn(object):
             t0 = time.time()
 
             try:
+                self.led.set('purple')
+                yield self.record_sample()
                 self.led.set('red')
-                sample = self.record_sample()
+                sample = yield self.record_sample()
                 self.led.set('blue')
                 self.upload_sample(sample)
             except Exception:
@@ -88,9 +90,8 @@ class ListenIn(object):
         )
 
         logging.debug('waiting for rec process to output')
-        self.led.set('purple')
-        aaa = rec_process.stdout.read(4095)
-        logging.debug('yay!')
+        first_byte = rec_process.stdout.read(1)
+        yield None
 
         sample = rec_process.communicate()[0]
         rc = rec_process.wait()
@@ -99,9 +100,7 @@ class ListenIn(object):
         if rc != 0:
             raise RuntimeError('failed to record: %r', rc)
 
-        print('%r' % aaa)
-        print('%r' % sample[:4095])
-        return sample
+        yield first_byte + sample
 
     def upload_sample(self, sample):
         url = 'http://mimosabox.com:55669/upload/{}/'.format(self.boxid)
