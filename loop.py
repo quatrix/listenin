@@ -81,33 +81,22 @@ class ListenIn(object):
                     time.sleep(sleep_time)
         
     def record_sample(self):
-        arecord_args = 'arecord -D plughw:1,0 -f cd -t raw -d {}'.format(self.duration)
-        lame_args = 'lame -r -h -V 0 - -'
-
-        logging.debug(arecord_args)
-
-        arecord_process = subprocess.Popen(
-            arecord_args.split(),
+        rec_args = 'rec -t mp3 -C 0 - silence 1 0.1 5% 1 1.0 5% trim 0 {}'.format(self.duration)
+        rec_process = subprocess.Popen(
+            rec_args.split(),
             stdout=subprocess.PIPE,
         )
 
-        lame_process = subprocess.Popen(
-            lame_args.split(),
-            stdin=arecord_process.stdout,
-            stdout=subprocess.PIPE,
-        )
+        logging.debug('waiting for rec process to output')
+        print(rec_process.stdout.read(1))
+        logging.debug('yay!')
 
-        arecord_process.stdout.close()
+        sample = rec_process.communicate()[0]
+        rc = rec_process.wait()
+        logging.info('process returned: %d', rc)
 
-        sample = lame_process.communicate()[0]
-
-        for p in arecord_process, lame_process:
-            rc = p.wait()
-            logging.info('%r process returned: %d', p, rc)
-
-
-            if rc != 0:
-                raise RuntimeError('failed to record: %r', rc)
+        if rc != 0:
+            raise RuntimeError('failed to record: %r', rc)
 
         return sample
 

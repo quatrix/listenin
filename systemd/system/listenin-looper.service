@@ -6,6 +6,8 @@ After=local-fs-pre.target
 Before=local-fs.target
 
 [Service]
+Environment=AUDIODEV=plughw:1,0
+Environment=AUDIODRIVER=alsa
 ExecStart=/home/pi/listenin/.pyenv/bin/python /home/pi/listenin/loop.py --boxid BOXID
 Restart=always
 
