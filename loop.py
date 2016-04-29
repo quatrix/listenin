@@ -88,7 +88,8 @@ class ListenIn(object):
         )
 
         logging.debug('waiting for rec process to output')
-        print(rec_process.stdout.read(1))
+        self.led.set('purple')
+        aaa = rec_process.stdout.read(4095)
         logging.debug('yay!')
 
         sample = rec_process.communicate()[0]
@@ -98,6 +99,8 @@ class ListenIn(object):
         if rc != 0:
             raise RuntimeError('failed to record: %r', rc)
 
+        print('%r' % aaa)
+        print('%r' % sample[:4095])
         return sample
 
     def upload_sample(self, sample):
