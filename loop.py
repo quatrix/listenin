@@ -60,8 +60,6 @@ class ListenIn(object):
         self.start_blinker()
 
         while True:
-            t0 = time.time()
-
             try:
                 self.led.set('purple')
                 r = self.record_sample()
@@ -69,6 +67,7 @@ class ListenIn(object):
                 self.led.set('red')
                 sample = next(r)
                 self.led.set('blue')
+                t0 = time.time()
                 self.upload_sample(sample)
             except Exception:
                 logging.exception('exception while recording and uploading')
