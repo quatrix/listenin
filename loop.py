@@ -89,13 +89,13 @@ class ListenIn(object):
         if os.path.exists(output_file):
             os.unlink(output_file)
 
-        rec_cmd = 'rec -t mp3 -C 0 {} silence 1 0.1 5% 1 1.0 5% trim 0 {}'
+        rec_cmd = 'rec --no-show-progress -t mp3 -C 0 {} silence 1 0.1 5% 1 1.0 5% trim 0 {}'.format(output_file, self.duration)
 
-        rec_process = subprocess.Popen(
-            rec_cmd.format(output_file, self.duration).split()
-        )
+        logging.debug(rec_cmd)
 
-        logging.debug('waiting for rec process to output')
+        rec_process = subprocess.Popen(rec_cmd.split())
+
+        logging.debug('waiting for signal')
 
         while True:
             rc = rec_process.poll()
@@ -112,6 +112,7 @@ class ListenIn(object):
             time.sleep(0.1)
 
         if rc is None:
+            logging.debug('signal detected')
             yield
 
         rc = rec_process.wait()
