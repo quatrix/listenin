@@ -58,12 +58,14 @@ class BaseHandler(RequestHandler):
             'request_time': 1000.0 * self.request.request_time(),
         }
 
+        extra = {k: v for k, v in extra.items() if v is not None}
+
         logger = logging.getLogger('logstash-logger')
 
-        if status_code > 300:
-            logger.error('', extra=extra, exc_info=True)
+        if status_code >= 400:
+            logger.error('error', extra=extra, exc_info=True)
         else:
-            logger.info('', extra=extra)
+            logger.info('success', extra=extra)
 
 @stream_request_body
 class UploadHandler(BaseHandler):
@@ -242,7 +244,7 @@ def main(port, samples_root, base_url, n_samples, sample_interval, max_age):
 
     enable_pretty_logging()
 
-    app.listen(port)
+    app.listen(port, xheaders=True)
     IOLoop.current().start()
 
 if __name__ == "__main__":
