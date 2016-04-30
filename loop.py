@@ -123,11 +123,12 @@ class ListenIn(object):
         yield open(output_file).read()
 
     def upload_sample(self, sample):
-        url = 'http://mimosabox.com:55669/upload/{}/'.format(self.boxid)
+        url = 'http://api.listenin.io/upload/{}/'.format(self.boxid)
         requests.post(url, data=sample)
 
     def cleanup(self):
         self.stop_blinker()
+
 
 @click.command()
 @click.option('--boxid', required=True, help='Unique id for box')
@@ -140,7 +141,6 @@ def main(boxid, duration, interval, retrytime):
     try:
         l.listen()
     finally:
-        print('cleanup')
         l.cleanup()
 
 if __name__ == '__main__':
