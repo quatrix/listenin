@@ -80,6 +80,7 @@ class UploadHandler(BaseHandler):
     def initialize(self):
         self.t0 = None
         self.fh = NamedTemporaryFile(delete=False)
+        super(UploadHandler, self).initialize()
 
     def post(self, boxid):
         upload_time = time.time() - self.t0
