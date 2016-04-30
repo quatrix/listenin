@@ -89,7 +89,7 @@ class ListenIn(object):
         if os.path.exists(output_file):
             os.unlink(output_file)
 
-        rec_cmd = 'rec --no-show-progress -t mp3 -C 0 {} silence 1 0.1 5% 1 2.0 5% trim 0 {}'.format(output_file, self.duration)
+        rec_cmd = 'rec --no-show-progress -t mp3 -C 0 {} silence 1 0.1 5% 1 2.0 1% trim 0 {}'.format(output_file, self.duration)
 
         logging.debug(rec_cmd)
 
