@@ -171,8 +171,8 @@ class ClubsHandler(BaseHandler):
 
 @click.command()
 @click.option('--port', default=55669, help='Port to listen on')
-@click.option('--samples-root', default='/usr/share/nginx/html/listenin/uploads/', help='Where files go')
-@click.option('--base-url', default='http://mimosabox.com/listenin/', help='Base URL')
+@click.option('--samples-root', default='/usr/share/nginx/html/listenin.io/uploads/', help='Where files go')
+@click.option('--base-url', default='http://listenin.io/', help='Base URL')
 @click.option('--n-samples', default=10, help='How many samples to return')
 @click.option('--sample-interval', default=300, help='Sampling interval')
 @click.option('--max-age', default=3600*2 , help='Oldest sample age')
