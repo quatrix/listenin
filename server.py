@@ -40,6 +40,9 @@ class BaseHandler(RequestHandler):
             'request_time': 1000.0 * self.request.request_time(),
         }
 
+        if hasattr(self, 'extra_log_args'):
+            extra.update(self.extra_log_args)
+
         extra = {k: v for k, v in extra.items() if v is not None}
 
         logger = logging.getLogger('logstash-logger')
@@ -54,11 +57,17 @@ class UploadHandler(BaseHandler):
         samples_dir = os.path.join(self.settings['samples_root'], boxid)
         sample_path = os.path.join(samples_dir, '{}.mp3'.format(int(time.time())))
 
+        self.extra_log_args = {
+            'boxid': boxid,
+            'sample_path': sample_path
+        }
+
         if not os.path.isdir(samples_dir):
             os.mkdir(samples_dir)
 
         with open(sample_path, 'wb+') as f:
             f.write(self.request.body)
+
 
 
 def number_part_of_sample(sample):
