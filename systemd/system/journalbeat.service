@@ -1,0 +1,12 @@
+[Unit]
+DefaultDependencies=false
+Description=JournalBeat
+After=local-fs-pre.target
+Before=local-fs.target
+
+[Service]
+ExecStart=/usr/bin/journalbeat -c /etc/journalbeat/journalbeat.yml
+Restart=always
+
+[Install]
+WantedBy=local-fs.target
