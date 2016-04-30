@@ -19,9 +19,6 @@ import time
 
 
 class BaseHandler(RequestHandler):
-    def initialize(self):
-        self.extra_log_args = {}
-
     def set_default_headers(self):
         self.set_header("Access-Control-Allow-Origin", "*")
         self.set_header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
@@ -43,20 +40,14 @@ class BaseHandler(RequestHandler):
             'request_time': 1000.0 * self.request.request_time(),
         }
 
-        self.extra_log_args.update(extra)
-
         extra = {k: v for k, v in extra.items() if v is not None}
 
         logger = logging.getLogger('logstash-logger')
 
         if status_code >= 400:
-            logger.error(
-                'error',
-                 extra=self.extra_log_args,
-                 exc_info=True
-            )
+            logger.error('error', extra=extra, exc_info=True)
         else:
-            logger.info('success', extra=self.extra_log_args)
+            logger.info('success', extra=extra)
 
 @stream_request_body
 class UploadHandler(BaseHandler):
