@@ -125,7 +125,7 @@ class ListenIn(object):
 
     def upload_sample(self, sample):
         url = 'http://api.listenin.io/upload/{}/'.format(self.boxid)
-        requests.post(url, data=sample)
+        requests.post(url, data=sample).raise_for_status()
 
     def cleanup(self):
         self.stop_blinker()
