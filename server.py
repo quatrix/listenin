@@ -49,40 +49,16 @@ class BaseHandler(RequestHandler):
         else:
             logger.info('success', extra=extra)
 
-@stream_request_body
 class UploadHandler(BaseHandler):
-    def initialize(self):
-        self.t0 = None
-        self.fh = NamedTemporaryFile(delete=False)
-        super(UploadHandler, self).initialize()
-
     def post(self, boxid):
-        upload_time = time.time() - self.t0
-
-        self.extra_log_args['upload_time'] = upload_time * 1000
-        UPLOAD_TIME.observe(upload_time)
-
         samples_dir = os.path.join(self.settings['samples_root'], boxid)
         sample_path = os.path.join(samples_dir, '{}.mp3'.format(int(time.time())))
-        logging.info('sample from boxid: %s -> %s', boxid, sample_path)
 
         if not os.path.isdir(samples_dir):
             os.mkdir(samples_dir)
 
-        logging.info('moving %s -> %s', self.fh.name, sample_path)
-
-        os.chmod(
-            self.fh.name,
-            stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH
-        )
-        os.rename(self.fh.name, sample_path)
-
-    def data_received(self, data):
-        if self.t0 is None:
-            self.t0 = time.time()
-
-        self.fh.write(data)
-
+        with open(sample_path, 'wb+') as f:
+            f.write(self.request.body)
 
 
 def number_part_of_sample(sample):
