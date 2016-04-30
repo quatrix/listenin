@@ -12,6 +12,7 @@ from tempfile import NamedTemporaryFile
 import pytz
 import logging
 import os
+import stat
 import click
 import time
 
@@ -28,6 +29,7 @@ GET_CLUBS_TIME = Summary(
 
 class MetricsHandler(RequestHandler):
     def get(self):
+        self.set_header('Content-Type', 'text/plain; version=0.0.4; charset=utf-8')
         self.write(generate_latest())
 
 
@@ -58,6 +60,11 @@ class UploadHandler(BaseHandler):
             os.mkdir(samples_dir)
 
         logging.info('moving %s -> %s', self.fh.name, sample_path)
+
+        os.chmod(
+            self.fh.name,
+            stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH
+        )
         os.rename(self.fh.name, sample_path)
 
     def data_received(self, data):
