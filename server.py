@@ -9,6 +9,8 @@ from ttldict import TTLDict
 from collections import defaultdict
 from datetime import datetime
 from tempfile import NamedTemporaryFile
+
+import logstash
 import pytz
 import logging
 import os
@@ -42,6 +44,26 @@ class BaseHandler(RequestHandler):
     def options(self, *args, **kwargs):
         self.finish()
             
+
+    def on_finish(self):
+        status_code = self.get_status()
+
+        extra = {
+            'device_id': self.request.headers.get('X-Device-Id'),
+            'latlng': self.request.headers.get('X-LatLng'),
+            'method': self.request.method,
+            'uri': self.request.uri,
+            'ip': self.request.remote_ip,
+            'status_code': status_code,
+            'request_time': 1000.0 * self.request.request_time(),
+        }
+
+        logger = logging.getLogger('logstash-logger')
+
+        if status_code > 300:
+            logger.error('', extra=extra, exc_info=True)
+        else:
+            logger.info('', extra=extra)
 
 @stream_request_body
 class UploadHandler(BaseHandler):
@@ -136,7 +158,10 @@ class ClubsHandler(BaseHandler):
         if seconds_since_last_sample > sample_interval:
             return
 
-        self._samples.set_ttl(club, sample_interval - seconds_since_last_sample)
+        self._samples.set_ttl(
+            club,
+            sample_interval - seconds_since_last_sample
+        )
     
     def get_samples(self, club):
         if club in self._samples:
@@ -146,6 +171,7 @@ class ClubsHandler(BaseHandler):
         self._set_ttl(club)
 
         return self._samples[club]
+
     def enrich_samples(self, samples, club):
         return [{
             'date': unix_time_to_readable_date(sample),
@@ -158,9 +184,15 @@ class ClubsHandler(BaseHandler):
 
     def get_logo(self, club):
         sizes = 'hdpi', 'mdpi', 'xhdpi', 'xxhdpi','xxxhdpi'
-        prefix = '{}/images/{}'.format(self.settings['base_url'], club)
+        prefix = '{}/images/{}'.format(
+            self.settings['base_url'],
+            club
+        )
 
-        return {size: '{}/{}.png'.format(prefix, size) for size in sizes}
+        return {
+            size: '{}/{}.png'.format(prefix, size)
+            for size in sizes
+        }
 
     @GET_CLUBS_TIME.time()
     def get(self):
@@ -184,6 +216,17 @@ class ClubsHandler(BaseHandler):
 @click.option('--sample-interval', default=300, help='Sampling interval')
 @click.option('--max-age', default=3600*2 , help='Oldest sample age')
 def main(port, samples_root, base_url, n_samples, sample_interval, max_age):
+
+    logstash_handler = logstash.LogstashHandler(
+        'localhost',
+        5959,
+        version=1
+    )
+
+    logstash_logger = logging.getLogger('logstash-logger')
+    logstash_logger.setLevel(logging.INFO)
+    logstash_logger.addHandler(logstash_handler)
+
     app = Application([
         (r"/upload/(.+)/", UploadHandler),
         (r"/clubs", ClubsHandler),
