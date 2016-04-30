@@ -9,6 +9,7 @@ from collections import defaultdict
 from datetime import datetime
 from tempfile import NamedTemporaryFile
 
+import subprocess
 import logstash
 import pytz
 import logging
@@ -16,6 +17,19 @@ import os
 import stat
 import click
 import time
+
+
+
+def get_duration(f):
+    r = subprocess.check_output(
+        ['sox', f, '-n', 'stat'],
+        stderr=subprocess.STDOUT,
+        universal_newlines=True
+    )
+
+    for l in r.split('\n'):
+        if l.startswith('Length'):
+            return float(l.split()[-1])
 
 
 class BaseHandler(RequestHandler):
@@ -68,6 +82,10 @@ class UploadHandler(BaseHandler):
         with open(sample_path, 'wb+') as f:
             f.write(self.request.body)
 
+        try:
+            self.extra_log_args['sample_duration'] = get_duration(sample_path)
+        except Exception:
+            logging.getLogger('logstash-logger').exception('get_duration')
 
 
 def number_part_of_sample(sample):
