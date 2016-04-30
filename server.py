@@ -4,7 +4,6 @@ from tornado.web import Application, RequestHandler, stream_request_body
 from tornado.ioloop import IOLoop
 from tornado.log import enable_pretty_logging
 from tornado.options import parse_command_line, define, options
-from prometheus_client import Summary, generate_latest
 from ttldict import TTLDict
 from collections import defaultdict
 from datetime import datetime
@@ -17,22 +16,6 @@ import os
 import stat
 import click
 import time
-
-UPLOAD_TIME = Summary(
-    'upload_request_seconds',
-    'Time spent uploading'
-)
-
-GET_CLUBS_TIME = Summary(
-    'get_clubs_request_seconds',
-    'Time spent getting clubs'
-)
-
-
-class MetricsHandler(RequestHandler):
-    def get(self):
-        self.set_header('Content-Type', 'text/plain; version=0.0.4; charset=utf-8')
-        self.write(generate_latest())
 
 
 class BaseHandler(RequestHandler):
@@ -208,7 +191,6 @@ class ClubsHandler(BaseHandler):
             for size in sizes
         }
 
-    @GET_CLUBS_TIME.time()
     def get(self):
         res = {}
 
@@ -244,7 +226,6 @@ def main(port, samples_root, base_url, n_samples, sample_interval, max_age):
     app = Application([
         (r"/upload/(.+)/", UploadHandler),
         (r"/clubs", ClubsHandler),
-        (r"/metrics", MetricsHandler),
     ], 
         debug=True,
         samples_root=samples_root,
