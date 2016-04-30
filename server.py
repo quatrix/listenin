@@ -36,6 +36,9 @@ class MetricsHandler(RequestHandler):
 
 
 class BaseHandler(RequestHandler):
+    def initialize(self):
+        self.extra_log_args = {}
+
     def set_default_headers(self):
         self.set_header("Access-Control-Allow-Origin", "*")
         self.set_header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
@@ -44,7 +47,6 @@ class BaseHandler(RequestHandler):
     def options(self, *args, **kwargs):
         self.finish()
             
-
     def on_finish(self):
         status_code = self.get_status()
 
@@ -58,14 +60,20 @@ class BaseHandler(RequestHandler):
             'request_time': 1000.0 * self.request.request_time(),
         }
 
+        self.extra_log_args.update(extra)
+
         extra = {k: v for k, v in extra.items() if v is not None}
 
         logger = logging.getLogger('logstash-logger')
 
         if status_code >= 400:
-            logger.error('error', extra=extra, exc_info=True)
+            logger.error(
+                'error',
+                 extra=self.extra_log_args,
+                 exc_info=True
+            )
         else:
-            logger.info('success', extra=extra)
+            logger.info('success', extra=self.extra_log_args)
 
 @stream_request_body
 class UploadHandler(BaseHandler):
@@ -74,7 +82,10 @@ class UploadHandler(BaseHandler):
         self.fh = NamedTemporaryFile(delete=False)
 
     def post(self, boxid):
-        UPLOAD_TIME.observe(time.time() - self.t0)
+        upload_time = time.time() - self.t0
+
+        self.extra_log_args['upload_time'] = upload_time * 1000
+        UPLOAD_TIME.observe(upload_time)
 
         samples_dir = os.path.join(self.settings['samples_root'], boxid)
         sample_path = os.path.join(samples_dir, '{}.mp3'.format(int(time.time())))
