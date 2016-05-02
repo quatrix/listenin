@@ -4,6 +4,7 @@ from tornado.web import Application, RequestHandler, stream_request_body
 from tornado.ioloop import IOLoop
 from tornado.log import enable_pretty_logging
 from tornado.options import parse_command_line, define, options
+from tornado.escape import json_decode
 from ttldict import TTLDict
 from collections import defaultdict
 from datetime import datetime
@@ -17,7 +18,6 @@ import os
 import stat
 import click
 import time
-
 
 
 def get_duration(f):
@@ -99,6 +99,11 @@ def unix_time_to_readable_date(t):
 
 def age(t):
     return int(time.time() - t)
+
+
+class SpyHandler(BaseHandler):
+    def post(self):
+        self.extra_log_args = json_decode(self.request.body)
 
 
 class ClubsHandler(BaseHandler):
@@ -220,6 +225,7 @@ def main(port, samples_root, base_url, n_samples, sample_interval, max_age):
     app = Application([
         (r"/upload/(.+)/", UploadHandler),
         (r"/clubs", ClubsHandler),
+        (r"/spy", SpyHandler),
     ], 
         debug=True,
         samples_root=samples_root,
