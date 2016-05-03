@@ -118,6 +118,7 @@ class ClubsHandler(BaseHandler):
                 'lat': 32.06303301410757, 
                 'lng': 34.775075912475586,
             },
+            'wifi': 'radio_epgb',
         },
         'pasaz' : {
             'name': 'The Pasáž',
@@ -128,6 +129,7 @@ class ClubsHandler(BaseHandler):
                 'lat': 32.0663031,
                 'lng': 34.7719147,
             },
+            'wifi': 'whoknows',
         }
     }
 
