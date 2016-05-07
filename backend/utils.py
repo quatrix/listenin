@@ -1,6 +1,7 @@
 import subprocess
 import time
 import pytz
+import datetime
 
 
 def get_duration(f):
@@ -21,7 +22,7 @@ def age(t):
 
 def unix_time_to_readable_date(t):
     tz = pytz.timezone('Asia/Jerusalem')
-    return datetime.fromtimestamp(t, tz=tz).strftime('%Y-%m-%d %H:%M:%S')
+    return datetime.datetime.fromtimestamp(t, tz=tz).strftime('%Y-%m-%d %H:%M:%S')
 
 
 def number_part_of_sample(sample):
