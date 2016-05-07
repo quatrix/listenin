@@ -37,9 +37,11 @@ class ClubsHandler(BaseHandler):
         n_samples = self.settings['n_samples']
         time_now = time.time()
 
+        samples = [sample for sample in os.listdir(path) if sample.endswith('.mp3')]
+
         samples = filter(
             lambda x: age(x) < self.settings['max_age'],
-            map(number_part_of_sample, os.listdir(path))
+            map(number_part_of_sample, samples)
         )
 
         return sorted(samples, reverse=True)[:n_samples]
