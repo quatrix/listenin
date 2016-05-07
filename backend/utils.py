@@ -27,3 +27,19 @@ def unix_time_to_readable_date(t):
 
 def number_part_of_sample(sample):
     return int(sample[:-4])
+
+
+def normalize_acrcloud_response(r):
+    r = r['metadata']['music'][0]
+
+    def _get_genres():
+        if 'genres' in r:
+            return [g['name'] for g in r['genres']]
+        return []
+
+    return {
+        'album': r['album']['name'],
+        'genres': _get_genres(),
+            'title': r['title'],
+            'artists': [a['name'] for a in r['artists']],
+        }
