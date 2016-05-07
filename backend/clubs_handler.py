@@ -3,6 +3,8 @@ from ttldict import TTLDict
 from utils import age, unix_time_to_readable_date, number_part_of_sample
 import os
 import time
+import logging
+import json
 
 
 class ClubsHandler(BaseHandler):
@@ -71,6 +73,41 @@ class ClubsHandler(BaseHandler):
 
         return self._samples[club]
 
+    def _get_metatata(self, club, sample):
+        sample_metadata_path = os.path.join(
+            self.settings['samples_root'],
+            club, 
+            '{}.json'.format(sample)
+        )
+
+        if not os.path.exists(sample_metadata_path):
+            return
+
+        r = json.loads(open(sample_metadata_path).read())
+
+        if 'metadata' not in r:
+            return
+
+        r = r['metadata']['music'][0]
+        
+        def _get_genres():
+            if 'genres' in r:
+                return [g['name'] for g in r['genres']]
+            return []
+
+        return {
+            'album': r['album']['name'],
+            'genres': _get_genres(),
+            'title': r['title'],
+            'artists': [a['name'] for a in r['artists']],
+        }
+
+    def get_metadata(self, club, sample):
+        try:
+            return self._get_metatata(club, sample)
+        except Exception:
+            logging.exception('get_metadata')
+
     def enrich_samples(self, samples, club):
         return [{
             'date': unix_time_to_readable_date(sample),
@@ -78,7 +115,8 @@ class ClubsHandler(BaseHandler):
                 self.settings['base_url'],
                 club,
                 sample
-            )
+            ),
+            'metadata': self.get_metadata(club, sample),
         } for sample in samples]
 
     def get_logo(self, club):
