@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
+
 from base_handler import BaseHandler
 from ttldict import TTLDict
-from utils import age, unix_time_to_readable_date, number_part_of_sample
+from utils import age, unix_time_to_readable_date, number_part_of_sample, normalize_acrcloud_response
 import os
 import time
 import logging
@@ -88,19 +90,7 @@ class ClubsHandler(BaseHandler):
         if 'metadata' not in r:
             return
 
-        r = r['metadata']['music'][0]
-        
-        def _get_genres():
-            if 'genres' in r:
-                return [g['name'] for g in r['genres']]
-            return []
-
-        return {
-            'album': r['album']['name'],
-            'genres': _get_genres(),
-            'title': r['title'],
-            'artists': [a['name'] for a in r['artists']],
-        }
+        return normalize_acrcloud_response(r)
 
     def get_metadata(self, club, sample):
         try:

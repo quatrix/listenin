@@ -1,5 +1,5 @@
 from tornado.web import RequestHandler
-from collections import ChainMap
+from chainmap import ChainMap
 import logging
 
 
