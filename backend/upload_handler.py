@@ -14,7 +14,8 @@ class UploadHandler(BaseHandler):
 
     @coroutine
     def get_metadata(self, sample):
-        r = yield self._thread_pool.submit(self.settings['recognizer'].recognize_by_filebuffer, (sample, 0))
+        f = self.settings['recognizer'].recognize_by_filebuffer
+        r = yield self._thread_pool.submit(f, sample, 0)
         raise Return(r)
 
     @coroutine
