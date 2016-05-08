@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from base_handler import BaseHandler
+from functools32 import lru_cache
 from ttldict import TTLDict
 from utils import age, unix_time_to_readable_date, number_part_of_sample, normalize_acrcloud_response
 import os
@@ -50,7 +51,6 @@ class ClubsHandler(BaseHandler):
 
         return sorted(samples, reverse=True)[:n_samples]
 
-
     def _set_ttl(self, club):
         if not self._samples[club]:
             return
@@ -75,6 +75,7 @@ class ClubsHandler(BaseHandler):
 
         return self._samples[club]
 
+    @lru_cache(maxsize=1000)
     def _get_metatata(self, club, sample):
         sample_metadata_path = os.path.join(
             self.settings['samples_root'],
