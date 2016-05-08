@@ -4,7 +4,11 @@ from tornado.log import enable_pretty_logging
 from upload_handler import UploadHandler
 from clubs_handler import ClubsHandler
 from spy_handler import SpyHandler
-from acrcloud.recognizer import ACRCloudRecognizer
+
+try:
+    from acrcloud.recognizer import ACRCloudRecognizer
+except ImportError:
+    from acrcloud_osx.recognizer import ACRCloudRecognizer
 
 import logstash
 import logging
@@ -18,8 +22,8 @@ import click
 @click.option('--n-samples', default=10, help='How many samples to return')
 @click.option('--sample-interval', default=300, help='Sampling interval')
 @click.option('--max-age', default=3600*2 , help='Oldest sample age')
-@click.option('--acr-key', help='ACRCloud Access Key')
-@click.option('--acr-secret', help='ACRCloud Access Secret')
+@click.option('--acr-key', required=True, help='ACRCloud Access Key')
+@click.option('--acr-secret', required=True, help='ACRCloud Access Secret')
 def main(port, samples_root, base_url, n_samples, sample_interval, max_age, acr_key, acr_secret):
     logstash_handler = logstash.LogstashHandler('localhost', 5959, version=1)
 
