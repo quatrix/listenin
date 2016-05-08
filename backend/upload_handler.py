@@ -4,10 +4,20 @@ import time
 import os
 import logging
 import json
+from tornado.gen import coroutine, Return
 from utils import normalize_acrcloud_response
+from concurrent.futures import ThreadPoolExecutor
 
 
 class UploadHandler(BaseHandler):
+    _thread_pool = ThreadPoolExecutor(4)
+
+    @coroutine
+    def get_metadata(self, sample):
+        r = yield self._thread_pool.submit(self.settings['recognizer'].recognize_by_filebuffer, (sample, 0))
+        raise Return(r)
+
+    @coroutine
     def post(self, boxid):
         samples_dir = os.path.join(self.settings['samples_root'], boxid)
         sample_id = int(time.time())
@@ -23,7 +33,7 @@ class UploadHandler(BaseHandler):
             os.mkdir(samples_dir)
 
         try:
-            r = self.settings['recognizer'].recognize_by_filebuffer(self.request.body, 0)
+            r = yield self.get_metadata(self.request.body)
             open(metadata_path, 'w').write(r)
             if 'metadata' in r:
                 self.extra_log_args['acrcloud'] = normalize_acrcloud_response(json.loads(r))
