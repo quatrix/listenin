@@ -86,7 +86,12 @@ class ClubsHandler(BaseHandler):
         if not os.path.exists(sample_metadata_path):
             return
 
-        r = json.loads(open(sample_metadata_path).read())
+        r = open(sample_metadata_path).read()
+
+        if len(r) == 0:
+            return
+
+        r = json.loads(r)
 
         if 'metadata' not in r:
             return
