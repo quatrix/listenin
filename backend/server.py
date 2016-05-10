@@ -4,6 +4,7 @@ from tornado.log import enable_pretty_logging
 from upload_handler import UploadHandler
 from clubs_handler import ClubsHandler
 from spy_handler import SpyHandler
+from health_handler import HealthHandler
 
 try:
     from acrcloud.recognizer import ACRCloudRecognizer
@@ -24,7 +25,8 @@ import click
 @click.option('--max-age', default=3600*2 , help='Oldest sample age')
 @click.option('--acr-key', required=True, help='ACRCloud Access Key')
 @click.option('--acr-secret', required=True, help='ACRCloud Access Secret')
-def main(port, samples_root, base_url, n_samples, sample_interval, max_age, acr_key, acr_secret):
+@click.option('--es-host', default='http://localhost:9200', help='ElasticSearch host')
+def main(port, samples_root, base_url, n_samples, sample_interval, max_age, acr_key, acr_secret, es_host):
     logstash_handler = logstash.LogstashHandler('localhost', 5959, version=1)
 
     logstash_logger = logging.getLogger('logstash-logger')
@@ -45,6 +47,7 @@ def main(port, samples_root, base_url, n_samples, sample_interval, max_age, acr_
         (r"/upload/(.+)/", UploadHandler),
         (r"/clubs", ClubsHandler),
         (r"/spy", SpyHandler),
+        (r"/health", HealthHandler),
     ], 
         debug=True,
         samples_root=samples_root,
@@ -53,6 +56,7 @@ def main(port, samples_root, base_url, n_samples, sample_interval, max_age, acr_
         sample_interval=sample_interval,
         max_age=max_age,
         recognizer=recognizer,
+        elasticsearch_host=es_host,
     )
 
     enable_pretty_logging()
