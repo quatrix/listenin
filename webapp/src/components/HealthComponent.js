@@ -49,7 +49,8 @@ class BoxHealthComponent extends React.Component {
                 <td style={last_color_style}></td>
                 <td>{name}</td>
                 <td>{box_state}</td>
-                <td>{moment(health.last_color.changed_at).fromNow()}</td>
+                <td>{moment(health.last_color.time).fromNow()}</td>
+                <td>{moment(health.last_upload.time).fromNow()}</td>
                 <td>{moment(health.last_blink).fromNow(true)}</td>
             </tr>
         )
@@ -98,6 +99,7 @@ class HealthComponent extends React.Component {
                         <th>name</th>
                         <th>state</th>
                         <th>state change</th>
+                        <th>last upload</th>
                         <th>blink</th>
                     </tr>
                 </thead>
