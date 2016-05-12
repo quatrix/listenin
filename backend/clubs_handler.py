@@ -5,6 +5,7 @@ from functools32 import lru_cache
 from ttldict import TTLDict
 from utils import age, unix_time_to_readable_date, number_part_of_sample, normalize_acrcloud_response
 from geopy import distance
+from operator import itemgetter
 import os
 import time
 import logging
@@ -20,10 +21,8 @@ class ClubsHandler(BaseHandler):
             'details': 'A home for underground music',
             'address': '7 Shadal St. Tel Aviv',
             'phone': '03-5603636',
-            'location': { 
-                'lat': 32.06303301410757, 
-                'lng': 34.775075912475586,
-            },
+            'location': {'lat': 32.06303301410757, 'lng': 34.775075912475586},
+            'location__': (32.06303301410757, 34.775075912475586),
             'wifi': 'radio_epgb',
         },
         'pasaz' : {
@@ -31,10 +30,8 @@ class ClubsHandler(BaseHandler):
             'details': 'The Pasáž (the Passage)',
             'address': '94 Allenby St. Tel Aviv',
             'phone': '077-3323118',
-            'location': { 
-                'lat': 32.0663031,
-                'lng': 34.7719147,
-            },
+            'location': {'lat': 32.0663031, 'lng': 34.7719147},
+            'location__': (32.0663031, 34.7719147),
             'wifi': 'whoknows',
         }
     }
@@ -106,6 +103,14 @@ class ClubsHandler(BaseHandler):
         except Exception:
             logging.exception('get_metadata')
 
+    def get_distance_from_client(self, location):
+        client_latlng = self.get_latlng()
+
+        if client_latlng is None:
+            return None
+
+        return int(distance.vincenty(location, client_latlng).meters)
+
     def enrich_samples(self, samples, club):
         return [{
             'date': unix_time_to_readable_date(sample),
@@ -142,39 +147,28 @@ class ClubsHandler(BaseHandler):
 
         return res
 
-    def cmp_distance_to_user(self, a, b):
-        client = self.get_latlng()
-        
-        distance_to_a = distance.vincenty((a['lat'], a['lng']), client)
-        distance_to_b = distance.vincenty((b['lat'], b['lng']), client)
-
-        return int(distance_to_a.meters - distance_to_b.meters)
-
     def get_clubs(self):
         clubs = []
 
-        for club in os.listdir(self.settings['samples_root']):
-            samples = self.get_samples(club)
-            samples = self.enrich_samples(samples, club)
+        for club_id in os.listdir(self.settings['samples_root']):
+            club = copy.deepcopy(self._clubs[club_id])
 
-            club = copy.deepcopy(self._clubs[club])
-            club['logo'] = self.get_logo(club)
+            samples = self.get_samples(club_id)
+            samples = self.enrich_samples(samples, club_id)
+
+            club['logo'] = self.get_logo(club_id)
             club['samples'] = samples
+            club['distance'] = self.get_distance_from_client(club['location__'])
 
             clubs.append(club)
         
         if self.get_latlng() is None:
             return clubs
 
-        return sorted(
-            clubs,
-            key=lambda club: club['location'],
-            cmp=self.cmp_distance_to_user
-        )
+        return sorted(clubs, key=itemgetter('distance'))
 
     def get(self):
         if self.get_argument('sagi', None):
             self.finish({'clubs': self.get_clubs()})
         else:
             self.finish(self.get_clubs_legacy())
-
