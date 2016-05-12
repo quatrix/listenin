@@ -1,3 +1,39 @@
 .health-component {
   border: 1px dashed #f00;
 }
+
+body {
+  font-family: "Roboto";
+}
+
+.box {
+  height: 300px;
+  width: 200px;
+  text-align: center;
+  float: left;
+}
+
+.box-title {
+  font-size: xx-large;
+}
+
+.box-state {
+  font-size: large;
+  margin: 10px;
+}
+
+.box-text-old {
+  font-size: smaller;
+  color: #e74c3c;
+}
+
+.box-text{
+  font-size: smaller;
+  color: gray;
+}
+
+.health-title {
+  font-size: xx-large;
+  margin: 15px 15px 10px 15px;
+  color: gray;
+}

@@ -1,15 +1,12 @@
 'use strict';
 
 import React from 'react';
-import { Table } from 'react-bootstrap';
-
 
 var _ = require('lodash')
 var moment = require('moment');
 
 require('styles//Health.css');
 require('isomorphic-fetch');
-
 
 var box_states = {
     green: 'Sleeping',
@@ -27,32 +24,58 @@ var colors = {
     purple: '#9b59b6'
 }
 
+class AgingTextField extends React.Component {
+    render() {
+        var style = 'box-text';
+
+
+        if (moment().diff(moment(this.props.age), 'minutes') > 5) {
+            style = 'box-text-old';
+        }
+
+        console.log(style);
+
+        return <div className={style}>{this.props.text}</div>
+    }
+}
+
 class BoxHealthComponent extends React.Component {
     render() {
-
         var health = this.props.health;
-        var now = moment();
         var last_blink = moment(health.last_blink)
-
-        var last_color_style = {'backgroundColor': colors[health.last_color.color]}
-        var row_style = {}
 
         var name = this.props.name.split('-')[1]
         var box_state =  box_states[health.last_color.color]
 
-        if (last_blink.diff(now, 'minutes') > 1) {
-            row_style = {'textDecoration': 'line-through'}
-        }
+        var status_led = <div style={{
+            'borderRadius': '50%',
+            'width': '50%',
+            'height': '100px',
+            'background': colors[health.last_color.color],
+            'margin': '0 auto'
+        }}></div>
 
         return (
-            <tr style={row_style}>
-                <td style={last_color_style}></td>
-                <td>{name}</td>
-                <td>{box_state}</td>
-                <td>{moment(health.last_color.time).fromNow()}</td>
-                <td>{moment(health.last_upload.time).fromNow()}</td>
-                <td>{moment(health.last_blink).fromNow(true)}</td>
-            </tr>
+            <div className='box'>
+                <div className='box-title'>{name}</div>
+                {status_led}
+                <div className='box-state'>{box_state}</div>
+
+                <AgingTextField
+                    age={health.last_color.time}
+                    text={'Changed: ' + moment(health.last_color.time).fromNow()}
+                />
+
+                <AgingTextField
+                    age={health.last_upload.time}
+                    text={'Uploaded: ' + moment(health.last_upload.time).fromNow()}
+                />
+
+                <AgingTextField
+                    age={health.last_blink}
+                    text={'Blinked: '+ moment(health.last_blink).fromNow()}
+                />
+            </div>
         )
     }
 }
@@ -92,21 +115,10 @@ class HealthComponent extends React.Component {
         });
 
         return (
-            <Table condensed>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>name</th>
-                        <th>state</th>
-                        <th>state change</th>
-                        <th>last upload</th>
-                        <th>blink</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <div>
+                <div className='health-title'>/listenin/health</div>
                 {boxes}
-                </tbody>
-            </Table>
+            </div> 
         );
     }
 }
