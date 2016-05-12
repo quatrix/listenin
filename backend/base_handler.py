@@ -11,7 +11,13 @@ class BaseHandler(RequestHandler):
 
     def options(self, *args, **kwargs):
         self.finish()
-            
+
+    def get_latlng(self):
+        latlng = self.request.headers.get('X-LatLng')
+
+        if latlng is not None:
+            return tuple(latlng.split(','))
+
     def on_finish(self):
         status_code = self.get_status()
 

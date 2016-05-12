@@ -4,10 +4,12 @@ from base_handler import BaseHandler
 from functools32 import lru_cache
 from ttldict import TTLDict
 from utils import age, unix_time_to_readable_date, number_part_of_sample, normalize_acrcloud_response
+from geopy import distance
 import os
 import time
 import logging
 import json
+import copy
 
 
 class ClubsHandler(BaseHandler):
@@ -127,7 +129,7 @@ class ClubsHandler(BaseHandler):
             for size in sizes
         }
 
-    def get(self):
+    def get_clubs_legacy(self):
         res = {}
 
         for club in os.listdir(self.settings['samples_root']):
@@ -137,5 +139,42 @@ class ClubsHandler(BaseHandler):
             samples = self.get_samples(club)
             samples = self.enrich_samples(samples, club)
             res[club]['samples'] = samples
-            
-        self.finish(res)
+
+        return res
+
+    def cmp_distance_to_user(self, a, b):
+        client = self.get_latlng()
+        
+        distance_to_a = distance.vincenty((a['lat'], a['lng']), client)
+        distance_to_b = distance.vincenty((b['lat'], b['lng']), client)
+
+        return int(distance_to_a.meters - distance_to_b.meters)
+
+    def get_clubs(self):
+        clubs = []
+
+        for club in os.listdir(self.settings['samples_root']):
+            samples = self.get_samples(club)
+            samples = self.enrich_samples(samples, club)
+
+            club = copy.deepcopy(self._clubs[club])
+            club['logo'] = self.get_logo(club)
+            club['samples'] = samples
+
+            clubs.append(club)
+        
+        if self.get_latlng() is None:
+            return clubs
+
+        return sorted(
+            clubs,
+            key=lambda club: club['location'],
+            cmp=self.cmp_distance_to_user
+        )
+
+    def get(self):
+        if self.get_argument('sagi', None):
+            self.finish({'clubs': self.get_clubs()})
+        else:
+            self.finish(self.get_clubs_legacy())
+
