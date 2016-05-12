@@ -12,7 +12,7 @@ var box_states = {
     green: 'Sleeping',
     red: 'Recording',
     blue: 'Uploading',
-    purple: 'Waiting for signal',
+    purple: 'Waiting for audio',
     orange: 'Problem'
 }
 
