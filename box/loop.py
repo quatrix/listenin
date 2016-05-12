@@ -15,6 +15,18 @@ from led import LED
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
+def get_duration(f):
+    r = subprocess.check_output(
+        ['sox', f, '-n', 'stat'],
+        stderr=subprocess.STDOUT,
+        universal_newlines=True
+    )
+
+    for l in r.split('\n'):
+        if l.startswith('Length'):
+            return float(l.split()[-1])
+
+
 class ListenIn(object):
     def __init__(self, boxid, duration, interval, retrytime):
         self.boxid = boxid
@@ -120,6 +132,13 @@ class ListenIn(object):
 
         if rc != 0:
             raise RuntimeError('failed to record: %r', rc)
+
+        sample_duration = get_duration(output_file)
+
+        if sample_duration < self.duration:
+            raise RuntimeError('sample duration too short ({}<{})'.format(
+                sample_duration, self.duration
+            ))
 
         yield open(output_file).read()
 
