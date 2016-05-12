@@ -13,7 +13,10 @@ class BaseHandler(RequestHandler):
         self.finish()
 
     def get_latlng(self):
-        latlng = self.request.headers.get('X-LatLng')
+        latlng = self.get_argument('latlng', None)
+
+        if latlng is None:
+            latlng = self.request.headers.get('X-LatLng')
 
         if latlng is not None:
             return tuple(latlng.split(','))
