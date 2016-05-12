@@ -5,6 +5,7 @@ chainmap==1.0.2
 click==6.6
 functools32==3.2.3.post2
 futures==3.0.5
+geopy==1.11.0
 python-logstash==0.4.6
 pytz==2016.4
 singledispatch==3.4.0.3
