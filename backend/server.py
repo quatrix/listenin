@@ -5,6 +5,7 @@ from upload_handler import UploadHandler
 from clubs_handler import ClubsHandler
 from spy_handler import SpyHandler
 from health_handler import HealthHandler
+from es import ES
 
 try:
     from acrcloud.recognizer import ACRCloudRecognizer
@@ -43,6 +44,8 @@ def main(port, samples_root, base_url, n_samples, sample_interval, max_age, acr_
 
     recognizer = ACRCloudRecognizer(acr_config)
 
+    es = ES(es_host)
+
     app = Application([
         (r"/upload/(.+)/", UploadHandler),
         (r"/clubs", ClubsHandler),
@@ -56,7 +59,7 @@ def main(port, samples_root, base_url, n_samples, sample_interval, max_age, acr_
         sample_interval=sample_interval,
         max_age=max_age,
         recognizer=recognizer,
-        elasticsearch_host=es_host,
+        es=es,
     )
 
     enable_pretty_logging()

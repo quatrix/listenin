@@ -6,6 +6,7 @@ from ttldict import TTLDict
 from utils import age, unix_time_to_readable_date, number_part_of_sample, normalize_acrcloud_response
 from geopy import distance
 from operator import itemgetter
+from tornado.gen import coroutine, Return
 import os
 import time
 import logging
@@ -15,6 +16,8 @@ import copy
 
 class ClubsHandler(BaseHandler):
     _samples = TTLDict(default_ttl=15)
+    _genres = TTLDict(default_ttl=60)
+
     _clubs = {
         'radio': {
             'name': 'Radio EPGB',
@@ -147,6 +150,7 @@ class ClubsHandler(BaseHandler):
 
         return res
 
+    @coroutine
     def get_clubs(self):
         clubs = []
 
@@ -160,15 +164,48 @@ class ClubsHandler(BaseHandler):
             club['samples'] = samples
             club['distance'] = self.get_distance_from_client(club['location__'])
 
+            try:
+                club['genres'] = (yield self.get_genres('now-6h', club_id))
+            except Exception:
+                pass
+
             clubs.append(club)
         
         if self.get_latlng() is None:
-            return clubs
+            raise Return(clubs)
 
-        return sorted(clubs, key=itemgetter('distance'))
+        raise Return(sorted(clubs, key=itemgetter('distance')))
 
+    @coroutine
+    def get_genres(self, time_back, club=''):
+        key = '{}::{}'.format(time_back, club)
+
+        genres = self._genres.get(key)
+
+        if genres is None:
+            kwargs = {}
+
+            if club:
+                kwargs = {'boxid': club}
+
+            genres = yield self.settings['es'].get_terms('acrcloud.genres.raw', time_back, **kwargs)
+            self._genres[key] = genres
+
+        raise Return(genres)
+
+    @coroutine
     def get(self):
         if self.get_argument('sagi', None):
-            self.finish({'clubs': self.get_clubs()})
+            try:
+                genres =  yield self.get_genres('now-6h')
+            except Exception:
+                genres = []
+
+            res = {
+                'clubs': (yield self.get_clubs()),
+                'genres': genres,
+            }
+
+            self.finish(res)
         else:
             self.finish(self.get_clubs_legacy())
