@@ -165,7 +165,7 @@ class ClubsHandler(BaseHandler):
             club['distance'] = self.get_distance_from_client(club['location__'])
 
             try:
-                club['genres'] = (yield self.get_genres('now-6h', club_id))
+                club['genres'] = (yield self.get_genres('now-4h', club_id))
             except Exception:
                 pass
 

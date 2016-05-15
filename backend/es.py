@@ -39,14 +39,6 @@ class ES(object):
           }
         }
       },
-      "filter": {
-        "range": {
-            "@timestamp": {
-                "gte": "",
-                "lte": "now"
-            }
-        }
-      }
     }
 
     def __init__(self, eshost):
@@ -92,8 +84,18 @@ class ES(object):
     def get_terms(self, field, time_back, **kwargs):
         query = copy.deepcopy(self._terms_query)
         query['aggs']['2']['terms']['field'] = field
-        query['filter']['range']['@timestamp']['gte'] = time_back
-        query['query']['bool']['must'] = self.gen_and_phrase(**kwargs)
+
+        time_back = {
+            "range": {
+                "@timestamp": {
+                    "gte": time_back,
+                    "lte": "now"
+                }
+            }
+        }
+
+        query['query']['bool']['must'].append(time_back)
+        query['query']['bool']['must'] += self.gen_and_phrase(**kwargs)
 
         res = yield self.query_es(query)
         raise Return(res['aggregations']['2']['buckets'])
