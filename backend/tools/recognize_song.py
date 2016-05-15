@@ -1,5 +1,9 @@
 import click
 import json
+import sys
+
+sys.path.insert(0, '../')
+
 
 try:
     from acrcloud.recognizer import ACRCloudRecognizer
