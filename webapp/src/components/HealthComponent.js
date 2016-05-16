@@ -17,23 +17,15 @@ var box_states = {
 }
 
 var colors = {
-    green: '#2ecc71',
-    red: '#e74c3c',
-    orange: '#f39c12',
-    blue: '#3498db',
-    purple: '#9b59b6'
 }
 
 class AgingTextField extends React.Component {
     render() {
         var style = 'box-text';
 
-
         if (moment().diff(moment(this.props.age), 'minutes') > 5) {
             style = 'box-text-old';
         }
-
-        console.log(style);
 
         return <div className={style}>{this.props.text}</div>
     }
@@ -46,14 +38,7 @@ class BoxHealthComponent extends React.Component {
 
         var name = this.props.name.split('-')[1]
         var box_state =  box_states[health.last_color.color]
-
-        var status_led = <div style={{
-            'borderRadius': '50%',
-            'width': '50%',
-            'height': '100px',
-            'background': colors[health.last_color.color],
-            'margin': '0 auto'
-        }}></div>
+        var status_led = <div className={'status-led ' + health.last_color.color } />
 
         return (
             <div className='box'>
@@ -111,12 +96,16 @@ class HealthComponent extends React.Component {
     render() {
         var i = 0;
         var boxes = _.map(this.state.health, function(v, k) {
-            return <BoxHealthComponent key={i++} name={k} health={v} />
+            return <BoxHealthComponent
+                className='health-component'
+                key={i++}
+                name={k}
+                health={v}
+             />
         });
 
         return (
             <div>
-                <div className='health-title'>/listenin/health</div>
                 {boxes}
             </div> 
         );

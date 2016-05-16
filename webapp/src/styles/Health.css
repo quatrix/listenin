@@ -1,5 +1,6 @@
 .health-component {
   border: 1px dashed #f00;
+  margin-top: 20px;
 }
 
 body {
@@ -15,6 +16,7 @@ body {
 
 .box-title {
   font-size: xx-large;
+  text-transform: uppercase;
 }
 
 .box-state {
@@ -33,7 +35,34 @@ body {
 }
 
 .health-title {
-  font-size: xx-large;
+  font-size: large;
   margin: 15px 15px 10px 15px;
   color: gray;
+}
+
+.status-led {
+  border-radius: 50%;
+  width: 40%;
+  height: 80px;
+  margin: 0 auto;
+}
+
+.status-led.green {
+    background: #2ecc71;
+}
+
+.status-led.red {
+    background: #e74c3c;
+}
+
+.status-led.orange {
+    background: #f39c12;
+}
+
+.status-led.blue {
+    background: #3498db;
+}
+
+.status-led.purple {
+    background: #9b59b6;
 }
