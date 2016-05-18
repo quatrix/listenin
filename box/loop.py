@@ -10,6 +10,7 @@ import requests
 from threading import Thread, Event
 from Queue import Queue, Empty
 from led import LED
+from wave_anylizer import Wave
 
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -97,17 +98,18 @@ class ListenIn(object):
         
     def record_sample(self):
         output_file = '/tmp/out.mp3'
+        downsampled_output_file = '/tmp/output.1c.8k.flac'
 
-        if os.path.exists(output_file):
-            os.unlink(output_file)
+        for f in output_file, downsampled_output_file:
+            if os.path.exists(f):
+                os.unlink(f)
 
-        rec_cmd = 'rec --norm --no-show-progress -t mp3 -C 0 {} silence 1 0.1 0.05% 1 2.0 0.05% trim 0 {}'.format(output_file, self.duration)
-
-        logging.debug(rec_cmd)
+        rec_cmd = 'rec --norm --no-show-progress -t mp3 -C 0 {} silence 1 0.1 0.05% 1 2.0 0.05% trim 0 {}'.format(
+            output_file,
+            self.duration,
+        )
 
         rec_process = subprocess.Popen(rec_cmd.split())
-
-        logging.debug('waiting for signal')
 
         while True:
             rc = rec_process.poll()
@@ -124,23 +126,32 @@ class ListenIn(object):
             time.sleep(0.1)
 
         if rc is None:
-            logging.debug('signal detected')
             yield
 
         rc = rec_process.wait()
-        logging.info('process returned: %d', rc)
 
         if rc != 0:
             raise RuntimeError('failed to record: %r', rc)
 
-        sample_duration = get_duration(output_file)
 
-        if sample_duration < self.duration:
-            raise RuntimeError('sample duration too short ({}<{})'.format(
-                sample_duration, self.duration
-            ))
+        downsample_cmd = 'sox {} -r 8000 -b 16 -c 1 {}'.format(output_file, downsampled_output_file)
+        subprocess.check_call(downsample_cmd.split())
+
+        w = Wave(downsampled_output_file) 
+
+        if w.length < self.duration:
+            raise RuntimeError('sample duration too short ({}<{})'.format(w.length, self.duration))
+
+        if w.is_silence:
+            raise RuntimeError('sample is silent')
+
+        if w.is_noise:
+            raise RuntimeError('sample is 50hz hum')
 
         yield open(output_file).read()
+
+    def assert_sample_is_valid(self, sample_file):
+        pass
 
     def upload_sample(self, sample):
         url = 'http://api.listenin.io/upload/{}/'.format(self.boxid)
