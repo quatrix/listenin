@@ -97,14 +97,15 @@ class ListenIn(object):
                     time.sleep(sleep_time)
         
     def record_sample(self):
-        output_file = '/tmp/out.mp3'
-        downsampled_output_file = '/tmp/output.1c.8k.flac'
+        output_file = '/tmp/output.mp3'
+        processed_file = '/tmp/processed.mp3'
+        downsampled_output_file = '/tmp/downsampled.1c.8k.flac'
 
         for f in output_file, downsampled_output_file:
             if os.path.exists(f):
                 os.unlink(f)
 
-        rec_cmd = 'rec --norm --no-show-progress -t mp3 -C 0 {} silence 1 0.1 0.05% 1 2.0 0.05% trim 0 {}'.format(
+        rec_cmd = 'rec --no-show-progress -t mp3 -C 0 {} silence 1 0.1 0.05% 1 2.0 0.05% trim 0 {}'.format(
             output_file,
             self.duration,
         )
@@ -134,7 +135,10 @@ class ListenIn(object):
             raise RuntimeError('failed to record: %r', rc)
 
 
-        downsample_cmd = 'sox {} -r 8000 -b 16 -c 1 {}'.format(output_file, downsampled_output_file)
+        normalize_cmd = 'sox --norm {} {}'.format(output_file, processed_file)
+        subprocess.check_call(normalize_cmd.split())
+
+        downsample_cmd = 'sox {} -r 8000 -b 16 -c 1 {}'.format(processed_file, downsampled_output_file)
         subprocess.check_call(downsample_cmd.split())
 
         w = Wave(downsampled_output_file) 
@@ -148,7 +152,7 @@ class ListenIn(object):
         if w.is_noise:
             raise RuntimeError('sample is 50hz hum')
 
-        yield open(output_file).read()
+        yield open(processed_file).read()
 
     def assert_sample_is_valid(self, sample_file):
         pass
