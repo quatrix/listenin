@@ -15,7 +15,8 @@ class ES(object):
         'sort': [
             {
                 '@timestamp': {
-                    'order': 'desc'
+                    'order': 'desc',
+                    'ignore_unmapped': True,
                 }
             }
         ]
