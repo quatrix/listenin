@@ -1,5 +1,6 @@
 from tornado.httpclient import AsyncHTTPClient
 from tornado.gen import coroutine, Return
+from datetime import date, timedelta
 
 import json
 import copy
@@ -59,10 +60,10 @@ class ES(object):
         return q
 
     @coroutine
-    def query_es(self, query):
+    def query_es(self, query, index='_all'):
         http_client = AsyncHTTPClient()
         res = yield http_client.fetch(
-            "{}/_search".format(self.eshost),
+            "{}/{}/_search".format(self.eshost, index),
              method='GET',
              body=json.dumps(query),
              allow_nonstandard_methods=True
@@ -76,9 +77,18 @@ class ES(object):
         raise Return(res)
 
     @coroutine
-    def get_last_document(self, **kwargs):
+    def get_last_document(self, index='logstash', **kwargs):
         query = self.gen_last_document_query(**kwargs)
-        res = yield self.query_es(query)
+
+        today, yesterday = date.today(), date.today() - timedelta(1)
+
+        index = ','.join([
+            '{}-{}'.format(index, d.strftime('%Y.%m.%d'))
+             for d in today, yesterday
+        ])
+
+
+        res = yield self.query_es(query, index=index)
         raise Return(res['hits']['hits'][0])
 
     @coroutine
