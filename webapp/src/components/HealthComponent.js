@@ -23,7 +23,7 @@ class AgingTextField extends React.Component {
     render() {
         var style = 'box-text';
 
-        if (moment().diff(moment(this.props.age), 'minutes') > 5) {
+        if (!this.props.age || moment().diff(moment(this.props.age), 'minutes') > 5) {
             style = 'box-text-old';
         }
 
