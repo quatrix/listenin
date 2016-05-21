@@ -14,11 +14,11 @@ class HealthHandler(BaseHandler):
                 host=box,
                 message='INFO:root:blink'
             )
-
-            raise Return(last_blink['_source']['@timestamp'])
         except Exception:
             logging.exception('get last blink')
             raise Return(None)
+
+        raise Return(last_blink['_source']['@timestamp'])
 
     @coroutine
     def get_last_color(self, box):
@@ -27,14 +27,14 @@ class HealthHandler(BaseHandler):
                 host=box,
                 message='INFO:root:setting led color to'
             )
-
-            raise Return({
-                'color': last_color_change['_source']['message'].split()[-1],
-                'time': last_color_change['_source']['@timestamp']
-            })
         except Exception:
             logging.exception('get last color')
             raise Return({'color': None, 'time': None})
+
+        raise Return({
+            'color': last_color_change['_source']['message'].split()[-1],
+            'time': last_color_change['_source']['@timestamp'],
+        })
 
     @coroutine
     def get_last_upload(self, box):
@@ -43,14 +43,13 @@ class HealthHandler(BaseHandler):
                 boxid=box.split('-')[1],
                 message='success'
             )
-
-            raise Return({
-                'time': last_upload['_source']['@timestamp'],
-            })
-
         except Exception:
             logging.exception('get last upload')
             raise Return({'time': None})
+
+        raise Return({
+            'time': last_upload['_source']['@timestamp'],
+        })
 
     @coroutine
     def get(self):
