@@ -36,6 +36,15 @@ class ClubsHandler(BaseHandler):
             'location': {'lat': 32.0663031, 'lng': 34.7719147},
             'location__': (32.0663031, 34.7719147),
             'wifi': 'whoknows',
+        },
+        'analulu' : {
+            'name': 'Anna Loulou Bar',
+            'details': 'Anna Loulou Bar',
+            'address': 'HaPninim 2, Tel Aviv-Yafo, 6803001, Israel',
+            'phone': '+972 3-716-8221',
+            'location': {'lat': 32.0534479, 'lng': 34.7538248},
+            'location__': (32.0534479, 34.7538248),
+            'wifi': 'whoknows',
         }
     }
 
@@ -162,6 +171,7 @@ class ClubsHandler(BaseHandler):
 
             club['logo'] = self.get_logo(club_id)
             club['samples'] = samples
+            club['cover'] = '{}/images/{}/cover.jpg'.format(self.settings['base_url'], club_id)
             club['distance'] = self.get_distance_from_client(club['location__'])
 
             try:
