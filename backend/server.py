@@ -22,7 +22,7 @@ import click
 @click.option('--samples-root', default='/usr/share/nginx/html/listenin.io/uploads/', help='Where files go')
 @click.option('--base-url', default='http://listenin.io/', help='Base URL')
 @click.option('--n-samples', default=10, help='How many samples to return')
-@click.option('--sample-interval', default=300, help='Sampling interval')
+@click.option('--sample-interval', default=150, help='Sampling interval')
 @click.option('--max-age', default=3600*2 , help='Oldest sample age')
 @click.option('--acr-key', required=True, help='ACRCloud Access Key')
 @click.option('--acr-secret', required=True, help='ACRCloud Access Secret')

@@ -37,7 +37,7 @@ class ClubsHandler(BaseHandler):
             'location__': (32.0663031, 34.7719147),
             'wifi': 'whoknows',
         },
-        'analulu' : {
+        'annaloulou' : {
             'name': 'Anna Loulou Bar',
             'details': 'Anna Loulou Bar',
             'address': 'HaPninim 2, Tel Aviv-Yafo, 6803001, Israel',
