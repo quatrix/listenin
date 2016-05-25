@@ -167,6 +167,10 @@ class ClubsHandler(BaseHandler):
             club = copy.deepcopy(self._clubs[club_id])
 
             samples = self.get_samples(club_id)
+
+            if not samples:
+                continue
+
             samples = self.enrich_samples(samples, club_id)
 
             club['logo'] = self.get_logo(club_id)
