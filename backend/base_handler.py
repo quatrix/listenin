@@ -26,7 +26,7 @@ class BaseHandler(RequestHandler):
 
         extra = {
             'device_id': self.request.headers.get('X-Device-Id'),
-            'latlng': self.request.headers.get('X-LatLng'),
+            'latlng': self.get_latlng(),
             'method': self.request.method,
             'uri': self.request.uri,
             'ip': self.request.remote_ip,
