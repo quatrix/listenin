@@ -19,14 +19,14 @@ class BaseHandler(RequestHandler):
             latlng = self.request.headers.get('X-LatLng')
 
         if latlng is not None:
-            return tuple(latlng.split(','))
+            return tuple(map(float, latlng.split(',')))
 
     def on_finish(self):
         status_code = self.get_status()
 
         extra = {
             'device_id': self.request.headers.get('X-Device-Id'),
-            'latlng': self.get_latlng(),
+            'geoip': {'location': ','.join(map(str, self.get_latlng()))},
             'method': self.request.method,
             'uri': self.request.uri,
             'ip': self.request.remote_ip,
@@ -35,6 +35,8 @@ class BaseHandler(RequestHandler):
         }
 
         extra = {k: v for k, v in extra.items() if v is not None}
+
+        print(extra)
 
         if hasattr(self, 'extra_log_args'):
             extra = ChainMap(extra, self.extra_log_args)
