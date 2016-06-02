@@ -176,6 +176,7 @@ class ClubsHandler(BaseHandler):
             club['logo'] = self.get_logo(club_id)
             club['samples'] = samples
             club['cover'] = '{}/images/{}/cover.jpg'.format(self.settings['base_url'], club_id)
+            club['cover_disabled'] = club['cover'].replace('.jpg', '-gs.jpg')
             club['distance'] = self.get_distance_from_client(club['location__'])
 
             try:
