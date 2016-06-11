@@ -50,7 +50,7 @@ class ClubsHandler(BaseHandler):
             'name': 'Lima Lima Bar',
             'details': 'Lima Lima Bar',
             'address': 'Lilienblum St 42, Tel Aviv-Yafo',
-            'phone': '+972-3-560-0924'
+            'phone': '+972-3-560-0924',
             'location': {'lat': 32.0623976, 'lng': 34.7699819},
             'location__': (32.0623976,34.7699819),
             'wifi': 'limalima',
