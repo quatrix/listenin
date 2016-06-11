@@ -1,3 +1,6 @@
 .pyenv
 *.pyc
 *.swp
+.DS_Store
+listenin.box.*
+journalbeat
