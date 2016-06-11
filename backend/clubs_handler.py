@@ -23,7 +23,7 @@ class ClubsHandler(BaseHandler):
             'name': 'Radio EPGB',
             'details': 'A home for underground music',
             'address': '7 Shadal St. Tel Aviv',
-            'phone': '03-5603636',
+            'phone': '+972-3-5603636',
             'location': {'lat': 32.06303301410757, 'lng': 34.775075912475586},
             'location__': (32.06303301410757, 34.775075912475586),
             'wifi': 'radio_epgb',
@@ -32,7 +32,7 @@ class ClubsHandler(BaseHandler):
             'name': 'The Pasáž',
             'details': 'The Pasáž (the Passage)',
             'address': '94 Allenby St. Tel Aviv',
-            'phone': '077-3323118',
+            'phone': '+972-77-3323118',
             'location': {'lat': 32.0663031, 'lng': 34.7719147},
             'location__': (32.0663031, 34.7719147),
             'wifi': 'whoknows',
@@ -41,11 +41,20 @@ class ClubsHandler(BaseHandler):
             'name': 'Anna Loulou Bar',
             'details': 'Anna Loulou Bar',
             'address': 'HaPninim 2, Tel Aviv-Yafo, 6803001, Israel',
-            'phone': '+972 3-716-8221',
+            'phone': '+972-3-716-8221',
             'location': {'lat': 32.0534479, 'lng': 34.7538248},
             'location__': (32.0534479, 34.7538248),
             'wifi': 'whoknows',
-        }
+        },
+        'limalima' : {
+            'name': 'Lima Lima Bar',
+            'details': 'Lima Lima Bar',
+            'address': 'Lilienblum St 42, Tel Aviv-Yafo',
+            'phone': '+972-3-560-0924'
+            'location': {'lat': 32.0623976, 'lng': 34.7699819},
+            'location__': (32.0623976,34.7699819),
+            'wifi': 'limalima',
+        },
     }
 
     def _get_samples(self, club):
