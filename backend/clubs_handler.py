@@ -59,7 +59,7 @@ class ClubsHandler(BaseHandler):
             'name': 'Rothschild 12',
             'details': 'Rothschild 12',
             'address': 'othschild Blvd 12, Tel Aviv-Yafo',
-            'phone': '+972-3-510-6430'
+            'phone': '+972-3-510-6430',
             'location': {'lat': 32.062718, 'lng': 34.7704438},
             'location__': (32.062718,34.7704438),
             'wifi': 'limalima',
