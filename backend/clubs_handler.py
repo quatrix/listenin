@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from base_handler import BaseHandler
-from functools32 import lru_cache
-from ttldict import TTLDict
-from utils import age, unix_time_to_readable_date, number_part_of_sample, normalize_acrcloud_response
-from geopy import distance
-from operator import itemgetter
-from tornado.gen import coroutine, Return
 import os
-import time
 import logging
 import json
 import copy
+from operator import itemgetter
+
+from functools32 import lru_cache
+from tornado.gen import coroutine, Return
+from ttldict import TTLDict
+from utils import age, unix_time_to_readable_date, number_part_of_sample, normalize_acrcloud_response
+from geopy import distance
+from base_handler import BaseHandler
 
 
 class ClubsHandler(BaseHandler):
@@ -52,24 +52,32 @@ class ClubsHandler(BaseHandler):
             'address': 'Lilienblum St 42, Tel Aviv-Yafo',
             'phone': '+972-3-560-0924',
             'location': {'lat': 32.0623976, 'lng': 34.7699819},
-            'location__': (32.0623976,34.7699819),
+            'location__': (32.0623976, 34.7699819),
             'wifi': 'limalima.1',
         },
         'rothschild12' : {
             'name': 'Rothschild 12',
             'details': 'Rothschild 12',
-            'address': 'othschild Blvd 12, Tel Aviv-Yafo',
+            'address': 'Rothschild Blvd 12, Tel Aviv-Yafo',
             'phone': '+972-3-510-6430',
             'location': {'lat': 32.062718, 'lng': 34.7704438},
-            'location__': (32.062718,34.7704438),
-            'wifi': 'limalima',
+            'location__': (32.062718, 34.7704438),
+            'wifi': 'whoknows',
+        },
+        'hostel51' : {
+            'name': 'Hostel 51',
+            'details': 'Hostel 51',
+            'address': 'Yehuda ha-Levi St 51, Tel Aviv-Yafo',
+            'phone': '+972-3-527-7306',
+            'location': {'lat': 32.0623872, 'lng': 34.7740594},
+            'location__': (32.0623872, 34.7740594),
+            'wifi': 'whoknows',
         },
     }
 
     def _get_samples(self, club):
         path = os.path.join(self.settings['samples_root'], club)
         n_samples = self.settings['n_samples']
-        time_now = time.time()
 
         samples = [sample for sample in os.listdir(path) if sample.endswith('.mp3')]
 
@@ -94,7 +102,7 @@ class ClubsHandler(BaseHandler):
             club,
             sample_interval - seconds_since_last_sample
         )
-    
+
     def get_samples(self, club):
         if club in self._samples:
             return self._samples[club]
@@ -153,7 +161,7 @@ class ClubsHandler(BaseHandler):
         } for sample in samples]
 
     def get_logo(self, club):
-        sizes = 'hdpi', 'mdpi', 'xhdpi', 'xxhdpi','xxxhdpi'
+        sizes = 'hdpi', 'mdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi'
         prefix = '{}/images/{}'.format(
             self.settings['base_url'],
             club
@@ -170,7 +178,7 @@ class ClubsHandler(BaseHandler):
         for club in os.listdir(self.settings['samples_root']):
             res[club] = self._clubs[club]
             res[club]['logo'] = self.get_logo(club)
-            
+
             samples = self.get_samples(club)
             samples = self.enrich_samples(samples, club)
             res[club]['samples'] = samples
@@ -203,7 +211,7 @@ class ClubsHandler(BaseHandler):
                 pass
 
             clubs.append(club)
-        
+
         if self.get_latlng() is None:
             raise Return(clubs)
 
@@ -230,7 +238,7 @@ class ClubsHandler(BaseHandler):
     def get(self):
         if self.get_argument('sagi', None):
             try:
-                genres =  yield self.get_genres('now-6h')
+                genres = yield self.get_genres('now-6h')
             except Exception:
                 genres = []
 
