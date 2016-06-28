@@ -1,9 +1,9 @@
+
+from collections import defaultdict
+import logging
+
 from tornado.gen import coroutine, Return
 from base_handler import BaseHandler
-from collections import defaultdict
-
-import logging
-import json
 
 
 class HealthHandler(BaseHandler):
@@ -55,7 +55,7 @@ class HealthHandler(BaseHandler):
     def get(self):
         res = defaultdict(dict)
 
-        for box in 'radio', 'pasaz', 'annaloulou', 'limalima', 'rothschild12':
+        for box in 'radio', 'pasaz', 'annaloulou', 'limalima', 'rothschild12', 'hostel51':
             box = 'listenin-' + box
             res[box]['last_blink'] = yield self.get_last_blink(box)
             res[box]['last_color'] = yield self.get_last_color(box)
