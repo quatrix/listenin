@@ -27,11 +27,11 @@ def main(health_api, box_name, upload_threshold):
         return UNKNOWN
 
     if box['last_blink'] is None:
-        click.echo('{} hasn\'t blinked for more than 24h'.format(box_name))
+        click.echo('{} hasn\'t blinked for more than two days'.format(box_name))
         return CRITICAL
 
     if box['last_upload']['time'] is None:
-        click.echo('{} hasn\'t uploaded for more than 24h'.format(box_name))
+        click.echo('{} hasn\'t uploaded for more than two days'.format(box_name))
         return CRITICAL
 
     now = datetime.now(tzutc())
