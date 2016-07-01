@@ -1,6 +1,6 @@
 {
   "client": {
-    "name": "pasaz",
+    "name": "BOX_NAME",
     "address": "",
     "environment": "production",
     "subscriptions": [
