@@ -1,0 +1,14 @@
+{
+  "client": {
+    "name": "pasaz",
+    "environment": "production",
+    "subscriptions": [
+      "box",
+      "ubuntu"
+    ],
+    "socket": {
+      "bind": "127.0.0.1",
+      "port": 3030
+    }
+  }
+}
