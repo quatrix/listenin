@@ -7,4 +7,4 @@ echo "deb     http://sensu.global.ssl.fastly.net/apt sensu main" | sudo tee /etc
 sudo apt-get update
 sudo apt-get install sensu
 
-cp -r /root/listenin/box/etc/sensu /etc/
+cp -r /home/pi/listenin/box/etc/sensu /etc/
