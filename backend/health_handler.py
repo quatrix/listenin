@@ -55,7 +55,7 @@ class HealthHandler(BaseHandler):
     def get(self):
         res = defaultdict(dict)
 
-        for box in 'radio', 'pasaz', 'annaloulou', 'limalima', 'rothschild12', 'hostel51':
+        for box in 'radio', 'pasaz', 'annaloulou', 'limalima', 'rothschild12', 'hostel51', 'kulialma':
             box = 'listenin-' + box
             res[box]['last_blink'] = yield self.get_last_blink(box)
             res[box]['last_color'] = yield self.get_last_color(box)

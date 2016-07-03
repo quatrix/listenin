@@ -73,6 +73,15 @@ class ClubsHandler(BaseHandler):
             'location__': (32.0623872, 34.7740594),
             'wifi': 'whoknows',
         },
+        'kulialma' : {
+            'name': 'Kuli Alma',
+            'details': 'Kuli Alma',
+            'address': 'Mikveh Israel St 10, Tel Aviv-Yafo',
+            'phone': '+972-3-656-5155',
+            'location': {'lat': 32.0622372, 'lng': 34.774789},
+            'location__': (32.0622372,34.774789),
+            'wifi': 'whoknows',
+        },
     }
 
     def _get_samples(self, club):
