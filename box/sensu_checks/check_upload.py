@@ -23,7 +23,8 @@ API_URL = 'http://api.listenin.io/health'
 def check_upload(box_name, upload_threshold):
     """Checks last upload time for box_name and returns Nagios"""
 
-    health = requests.get(API_URL).json()
+    headers = {'Cache-Control': 'no-cache'}
+    health = requests.get(API_URL, headers=headers).json()
     box_name = 'listenin-' + box_name
 
     box = health[box_name]
