@@ -3,4 +3,4 @@
 set -e
 
 git pull
-pip install -r requirements.txt 
+.pyenv/bin/pip install -r requirements.txt 
