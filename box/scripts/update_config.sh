@@ -4,7 +4,7 @@ set -e
 export LC_ALL=C
 
 echo "killing sensu"
-sudo killall ruby
+sudo killall sensu-client
 sudo update-rc.d sensu-client remove -f
 
 echo "enabling sensu systemd"
