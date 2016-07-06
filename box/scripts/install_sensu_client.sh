@@ -15,5 +15,7 @@ sudo cp -r /home/pi/listenin/box/etc/sensu /etc/
 sudo cp -r /home/pi/listenin/box/etc/systemd/system/sensu-client.service /etc/systemd/system/
 sudo perl -p -i -e "s/BOX_NAME/${BOX_NAME}/g" /etc/sensu/conf.d/client.json
 
+sudo mkdir /var/run/sensu
+sudo chown -R sensu:sensu /var/run/sensu
 sudo systemctl enable sensu-client
 sudo systemctl start sensu-client
