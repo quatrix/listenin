@@ -12,7 +12,8 @@ echo "deb     http://sensu.global.ssl.fastly.net/apt sensu main" | sudo tee /etc
 sudo apt-get update
 sudo apt-get install sensu
 sudo cp -r /home/pi/listenin/box/etc/sensu /etc/
+sudo cp -r /home/pi/listenin/box/etc/systemd/system/sensu-client.service /etc/systemd/system/
 sudo perl -p -i -e "s/BOX_NAME/${BOX_NAME}/g" /etc/sensu/conf.d/client.json
 
-sudo update-rc.d sensu-client defaults
-sudo /etc/init.d/sensu-client restart
+sudo systemctl enable sensu-client
+sudo systemctl start sensu-client
