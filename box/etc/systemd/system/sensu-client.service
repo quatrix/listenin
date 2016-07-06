@@ -3,7 +3,7 @@ Description=Sensu Client
 
 [Service]
 User=sensu
-ExecStart=/opt/sensu/embedded/bin/ruby /opt/sensu/bin/sensu-client -c /etc/sensu/config.json -d /etc/sensu/conf.d -e /etc/sensu/extensions -p /var/run/sensu/sensu-client.pid  -L info
+ExecStart=/opt/sensu/embedded/bin/ruby /opt/sensu/bin/sensu-client -c /etc/sensu/config.json -d /etc/sensu/conf.d -e /etc/sensu/extensions -L info
 Restart=always
 
 [Install]
