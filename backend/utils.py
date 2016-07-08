@@ -7,17 +7,18 @@ from tempfile import NamedTemporaryFile
 
 def get_bpm(filename):
     with NamedTemporaryFile(suffix='.wav') as wav:
-        subprocess.check_call(['sox', filename, wav.name])
+        subprocess.check_call(['sox', filename, '-c', '1', wav.name])
 
         r = subprocess.check_output(
-            ['soundstretch', wav.name, '-bpm'],
+            ['vamp-simple-host', 'qm-vamp-plugins:qm-tempotracker:tempo', wav.name],
             stderr=subprocess.STDOUT,
             universal_newlines=True
         )
 
         for l in r.split('\n'):
-            if l.startswith('Detected BPM rate'):
-                return float(l.split()[-1])
+            if l.endswith('bpm'):
+                return float(l.split()[-2])
+
 
 def get_duration(f):
     r = subprocess.check_output(
