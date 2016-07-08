@@ -19,7 +19,7 @@ class UploadHandler(BaseHandler):
         r = json.loads(r)
 
         if 'metadata' not in r:
-            raise RuntimeError('unrecognized song')
+            raise Return(None)
 
         raise Return(r['metadata']['music'][0])
 
@@ -29,8 +29,11 @@ class UploadHandler(BaseHandler):
 
         try:
             recognized_song = yield self.recognize_sample(sample_path)
-            self.extra_log_args['acrcloud'] = normalize_acrcloud_response(recognized_song)
-            metadata['recognized_song'] = recognized_song
+
+            if recognized_song:
+                self.extra_log_args['acrcloud'] = normalize_acrcloud_response(recognized_song)
+                metadata['recognized_song'] = recognized_song
+
         except Exception:
             logging.getLogger('logstash-logger').exception('recognize_sample')
 
