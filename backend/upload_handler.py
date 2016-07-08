@@ -4,6 +4,7 @@ import time
 import os
 import logging
 import json
+from tempfile import NamedTemporaryFile
 from tornado.gen import coroutine, Return
 from utils import normalize_acrcloud_response
 from concurrent.futures import ThreadPoolExecutor
@@ -13,10 +14,50 @@ class UploadHandler(BaseHandler):
     _thread_pool = ThreadPoolExecutor(4)
 
     @coroutine
-    def get_metadata(self, sample):
-        f = self.settings['recognizer'].recognize_by_filebuffer
-        r = yield self._thread_pool.submit(f, sample, 0)
-        raise Return(r)
+    def recognize_sample(self, sample_path):
+        f = self.settings['recognizer'].recognize_by_file
+        r = yield self._thread_pool.submit(f, sample_path, 0)
+        r = json.loads(r)
+
+        if 'metadata' not in r:
+            raise RuntimeError('unrecognized song')
+
+        raise Return(r['metadata']['music'][0])
+
+    @coroutine
+    def get_bpm(self, sample_path):
+        raise Return(-1)
+
+    @coroutine
+    def write_metadata(self, sample_path, metadata_path):
+        metadata = {}
+
+        try:
+            recognized_song = yield self.recognize_sample(sample_path)
+            self.extra_log_args['acrcloud'] = normalize_acrcloud_response(recognized_song)
+            metadata['recognized_song'] = recognized_song
+        except Exception:
+            logging.getLogger('logstash-logger').exception('recognize_sample')
+
+        try:
+            metadata['bpm'] = yield self.get_bpm(sample_path)
+            self.extra_log_args['bpm'] = metadata['bpm']
+        except Exception:
+            logging.getLogger('logstash-logger').exception('get_bpm')
+
+        try:
+            metadata['duration'] = get_duration(sample_path)
+            self.extra_log_args['sample_duration'] = get_duration(sample_path)
+        except Exception:
+            logging.getLogger('logstash-logger').exception('get_duration')
+
+        if not metadata:
+            return
+
+        try:
+            open(metadata_path, 'w').write(json.dumps(metadata))
+        except Exception:
+            logging.getLogger('logstash-logger').exception('write metadata')
 
     @coroutine
     def post(self, boxid):
@@ -33,18 +74,7 @@ class UploadHandler(BaseHandler):
         if not os.path.isdir(samples_dir):
             os.mkdir(samples_dir)
 
-        try:
-            r = yield self.get_metadata(self.request.body)
-            open(metadata_path, 'w').write(r)
-            if 'metadata' in r:
-                self.extra_log_args['acrcloud'] = normalize_acrcloud_response(json.loads(r))
-        except Exception:
-            logging.getLogger('logstash-logger').exception('recognize_sample')
-
-        with open(sample_path, 'wb+') as f:
-            f.write(self.request.body)
-
-        try:
-            self.extra_log_args['sample_duration'] = get_duration(sample_path)
-        except Exception:
-            logging.getLogger('logstash-logger').exception('get_duration')
+        with NamedTemporaryFile(delete=False) as tmp_file:
+            tmp_file.write(self.request.body)
+            yield self.write_metadata(tmp_file.name, metadata_path)
+            os.rename(tmp_file.name, sample_path)

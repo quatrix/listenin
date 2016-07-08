@@ -125,24 +125,13 @@ class ClubsHandler(BaseHandler):
     def _get_metatata(self, club, sample):
         sample_metadata_path = os.path.join(
             self.settings['samples_root'],
-            club, 
+            club,
             '{}.json'.format(sample)
         )
 
-        if not os.path.exists(sample_metadata_path):
-            return
-
-        r = open(sample_metadata_path).read()
-
-        if len(r) == 0:
-            return
-
-        r = json.loads(r)
-
-        if 'metadata' not in r:
-            return
-
-        return normalize_acrcloud_response(r)
+        metadata = json.loads(open(sample_metadata_path).read())
+        metadata['recognized_song'] = normalize_acrcloud_response(metadata['recognized_song'])
+        return metadata
 
     def get_metadata(self, club, sample):
         try:

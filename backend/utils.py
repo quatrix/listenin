@@ -30,8 +30,6 @@ def number_part_of_sample(sample):
 
 
 def normalize_acrcloud_response(r):
-    r = r['metadata']['music'][0]
-
     def _get_genres():
         if 'genres' in r:
             return [g['name'] for g in r['genres']]
@@ -40,6 +38,6 @@ def normalize_acrcloud_response(r):
     return {
         'album': r['album']['name'],
         'genres': _get_genres(),
-            'title': r['title'],
-            'artists': [a['name'] for a in r['artists']],
-        }
+        'title': r['title'],
+        'artists': [a['name'] for a in r['artists']],
+    }
