@@ -38,16 +38,16 @@ class UploadHandler(BaseHandler):
             logging.getLogger('logstash-logger').exception('recognize_sample')
 
         try:
+            metadata['duration'] = get_duration(sample_path)
+            self.extra_log_args['sample_duration'] = metadata['duration']
+        except Exception:
+            logging.getLogger('logstash-logger').exception('get_duration')
+
+        try:
             metadata['bpm'] = get_bpm(sample_path)
             self.extra_log_args['bpm'] = metadata['bpm']
         except Exception:
             logging.getLogger('logstash-logger').exception('get_bpm')
-
-        try:
-            metadata['duration'] = get_duration(sample_path)
-            self.extra_log_args['sample_duration'] = get_duration(sample_path)
-        except Exception:
-            logging.getLogger('logstash-logger').exception('get_duration')
 
         if not metadata:
             return
@@ -74,5 +74,7 @@ class UploadHandler(BaseHandler):
 
         with NamedTemporaryFile(delete=False, suffix='.mp3') as tmp_file:
             tmp_file.write(self.request.body)
+            tmp_file.flush()
             yield self.write_metadata(tmp_file.name, metadata_path)
+            os.chmod(tmp_file.name, 0644)
             os.rename(tmp_file.name, sample_path)
