@@ -1,12 +1,11 @@
 from base_handler import BaseHandler
-from utils import get_duration
 import time
 import os
 import logging
 import json
 from tempfile import NamedTemporaryFile
 from tornado.gen import coroutine, Return
-from utils import normalize_acrcloud_response
+from utils import normalize_acrcloud_response, get_bpm, get_duration
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -25,10 +24,6 @@ class UploadHandler(BaseHandler):
         raise Return(r['metadata']['music'][0])
 
     @coroutine
-    def get_bpm(self, sample_path):
-        raise Return(-1)
-
-    @coroutine
     def write_metadata(self, sample_path, metadata_path):
         metadata = {}
 
@@ -40,7 +35,7 @@ class UploadHandler(BaseHandler):
             logging.getLogger('logstash-logger').exception('recognize_sample')
 
         try:
-            metadata['bpm'] = yield self.get_bpm(sample_path)
+            metadata['bpm'] = get_bpm(sample_path)
             self.extra_log_args['bpm'] = metadata['bpm']
         except Exception:
             logging.getLogger('logstash-logger').exception('get_bpm')

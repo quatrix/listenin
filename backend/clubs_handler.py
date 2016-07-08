@@ -130,7 +130,10 @@ class ClubsHandler(BaseHandler):
         )
 
         metadata = json.loads(open(sample_metadata_path).read())
-        metadata['recognized_song'] = normalize_acrcloud_response(metadata['recognized_song'])
+
+        if 'recognized_song' in metadata:
+            metadata['recognized_song'] = normalize_acrcloud_response(metadata['recognized_song'])
+
         return metadata
 
     def get_metadata(self, club, sample):

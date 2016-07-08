@@ -2,7 +2,22 @@ import subprocess
 import time
 import pytz
 import datetime
+from tempfile import NamedTemporaryFile
 
+
+def get_bpm(filename):
+    with NamedTemporaryFile(suffix='.wav') as wav:
+        subprocess.check_call(['sox', filename, wav.name])
+
+        r = subprocess.check_output(
+            ['soundstretch', wav.name, '-bpm'],
+            stderr=subprocess.STDOUT,
+            universal_newlines=True
+        )
+
+        for l in r.split('\n'):
+            if l.startswith('Detected BPM rate'):
+                return float(l.split()[-1])
 
 def get_duration(f):
     r = subprocess.check_output(
