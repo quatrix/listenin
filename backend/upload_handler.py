@@ -74,7 +74,7 @@ class UploadHandler(BaseHandler):
         if not os.path.isdir(samples_dir):
             os.mkdir(samples_dir)
 
-        with NamedTemporaryFile(delete=False) as tmp_file:
+        with NamedTemporaryFile(delete=False, suffix='.mp3') as tmp_file:
             tmp_file.write(self.request.body)
             yield self.write_metadata(tmp_file.name, metadata_path)
             os.rename(tmp_file.name, sample_path)
