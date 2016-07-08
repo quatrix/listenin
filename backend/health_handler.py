@@ -1,6 +1,5 @@
 
 from collections import defaultdict
-import logging
 
 from tornado.gen import coroutine, Return
 from base_handler import BaseHandler
@@ -15,7 +14,6 @@ class HealthHandler(BaseHandler):
                 message='INFO:root:blink'
             )
         except Exception:
-            logging.exception('get last blink')
             raise Return(None)
 
         raise Return(last_blink['_source']['@timestamp'])
@@ -28,7 +26,6 @@ class HealthHandler(BaseHandler):
                 message='INFO:root:setting led color to'
             )
         except Exception:
-            logging.exception('get last color')
             raise Return({'color': None, 'time': None})
 
         raise Return({
@@ -44,7 +41,6 @@ class HealthHandler(BaseHandler):
                 message='success'
             )
         except Exception:
-            logging.exception('get last upload')
             raise Return({'time': None})
 
         raise Return({
