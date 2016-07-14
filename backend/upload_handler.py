@@ -78,3 +78,5 @@ class UploadHandler(BaseHandler):
             yield self.write_metadata(tmp_file.name, metadata_path)
             os.chmod(tmp_file.name, 0644)
             os.rename(tmp_file.name, sample_path)
+
+        self.settings['samples'].add(sample_id, boxid)
