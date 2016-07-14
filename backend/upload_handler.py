@@ -38,12 +38,14 @@ class UploadHandler(BaseHandler):
             logging.getLogger('logstash-logger').exception('recognize_sample')
 
         try:
+            # FIXME: get_duration() should not block
             metadata['duration'] = get_duration(sample_path)
             self.extra_log_args['sample_duration'] = metadata['duration']
         except Exception:
             logging.getLogger('logstash-logger').exception('get_duration')
 
         try:
+            # FIXME: get_bpm() should not block
             metadata['bpm'] = get_bpm(sample_path)
             self.extra_log_args['bpm'] = metadata['bpm']
         except Exception:

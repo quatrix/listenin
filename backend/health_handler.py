@@ -47,6 +47,7 @@ class HealthHandler(BaseHandler):
             'time': last_upload['_source']['@timestamp'],
         })
 
+    #FIXME should cache this
     @coroutine
     def get(self):
         res = defaultdict(dict)
