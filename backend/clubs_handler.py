@@ -115,21 +115,14 @@ class ClubsHandler(BaseHandler):
         clubs = []
 
         for club_id, samples in self.settings['samples'].all().iteritems():
-            club = copy.deepcopy(self._clubs[club_id])
-
             if not samples:
                 continue
 
+            club = copy.deepcopy(self._clubs[club_id])
             club['logo'] = self.get_logo(club_id)
             club['samples'] = samples
             club['cover'] = '{}/images/{}/cover.jpg'.format(self.settings['base_url'], club_id)
             club['distance'] = self.get_distance_from_client(club['location__'])
-
-            try:
-                club['genres'] = (yield self.get_genres('now-4h', club_id))
-            except Exception:
-                pass
-
             clubs.append(club)
 
         if self.get_latlng() is None:
@@ -138,33 +131,10 @@ class ClubsHandler(BaseHandler):
         raise Return(sorted(clubs, key=itemgetter('distance')))
 
     @coroutine
-    def get_genres(self, time_back, club=''):
-        key = '{}::{}'.format(time_back, club)
-
-        genres = self._genres.get(key)
-
-        if genres is None:
-            kwargs = {}
-
-            if club:
-                kwargs = {'boxid': club}
-
-            genres = yield self.settings['es'].get_terms('acrcloud.genres.raw', time_back, **kwargs)
-            self._genres[key] = genres
-
-        raise Return(genres)
-
-    @coroutine
     def get(self):
         if self.get_argument('sagi', None):
-            try:
-                genres = yield self.get_genres('now-6h')
-            except Exception:
-                genres = []
-
             res = {
                 'clubs': (yield self.get_clubs()),
-                'genres': genres,
             }
 
             self.finish(res)
