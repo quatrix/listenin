@@ -28,6 +28,10 @@ def main(client_id, user_id, license, filename):
         res = subprocess.check_output(['gracetune_musicid_stream', c_id, tag_id, license, 'online', wav.name])
         res = json.loads(res)
 
+    if 'error' in res:
+        print(res)
+        return
+
     metadata = pygn.search(
         clientID=client_id,
         userID=user_id,
