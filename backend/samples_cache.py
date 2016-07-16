@@ -75,6 +75,7 @@ class SamplesCache(object):
 
         if 'gracenote' in metadata:
             metadata['recognized_song'] = normalize_gracenote_response(metadata['gracenote'])
+            del metadata['gracenote'] # FIXME this is while we're using two recognizers
         elif 'recognized_song' in metadata:
             metadata['recognized_song'] = normalize_acrcloud_response(metadata['recognized_song'])
 
