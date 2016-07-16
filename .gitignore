@@ -4,3 +4,6 @@
 .DS_Store
 listenin.box.*
 journalbeat
+backend/gracenote.license
+backend/gn_*
+backend/user.txt

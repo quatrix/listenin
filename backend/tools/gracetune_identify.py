@@ -29,7 +29,7 @@ def main(client_id, user_id, license, filename):
         res = json.loads(res)
 
     if 'error' in res:
-        print(res)
+        print(json.dumps(res, indent=4))
         return
 
     metadata = pygn.search(
