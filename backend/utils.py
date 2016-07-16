@@ -56,4 +56,14 @@ def normalize_acrcloud_response(r):
         'genres': _get_genres(),
         'title': r['title'],
         'artists': [a['name'] for a in r['artists']],
+        '_recognizer': 'acrcloud',
+    }
+
+def normalize_gracenote_response(r):
+    return {
+        'album': r['album_title'],
+        'genres': [],
+        'title': r['tracks'][0]['track_title'],
+        'artists': [r['album_artist_name']],
+        '_recognizer': 'gracenote',
     }

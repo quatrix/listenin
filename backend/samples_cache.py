@@ -8,7 +8,7 @@ import os
 import logging
 
 from utils import unix_time_to_readable_date, number_part_of_sample, \
-                  normalize_acrcloud_response
+                  normalize_acrcloud_response, normalize_gracenote_response
 
 class SamplesCache(object):
     """
@@ -73,7 +73,9 @@ class SamplesCache(object):
             logging.exception('get_metadata')
             return
 
-        if 'recognized_song' in metadata:
+        if 'gracenote' in metadata:
+            metadata['recognized_song'] = normalize_gracenote_response(metadata['gracenote'])
+        elif 'recognized_song' in metadata:
             metadata['recognized_song'] = normalize_acrcloud_response(metadata['recognized_song'])
 
         return metadata
