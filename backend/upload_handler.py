@@ -5,6 +5,7 @@ import logging
 import json
 from tempfile import NamedTemporaryFile
 from tornado.gen import coroutine, Return
+from tornado.process import Subprocess
 from utils import normalize_acrcloud_response, get_bpm, get_duration
 from concurrent.futures import ThreadPoolExecutor
 
@@ -24,6 +25,21 @@ class UploadHandler(BaseHandler):
         raise Return(r['metadata']['music'][0])
 
     @coroutine
+    def recognize_sample_with_gracenote(self, sample_path):
+        conf = self.settings['gn_config']
+        proc = Subprocess([
+            'tools/gracetune_identify.py',
+            '--client-id', conf['client_id'],
+            '--user-id', conf['user_id'],
+            '--license', conf['license'],
+            '--filename', sample_path
+            ], stdout=Subprocess.STREAM)
+
+        yield proc.wait_for_exit()
+        ret = yield proc.stdout.read_until_close()
+        raise Return(json.loads(ret))
+
+    @coroutine
     def write_metadata(self, sample_path, metadata_path):
         metadata = {}
 
@@ -36,6 +52,16 @@ class UploadHandler(BaseHandler):
 
         except Exception:
             logging.getLogger('logstash-logger').exception('recognize_sample')
+
+        try:
+            recognized_song_gn = yield self.recognize_sample_with_gracenote(sample_path)
+
+            if 'error' not in recognized_song_gn:
+                self.extra_log_args['gracenote'] = recognized_song_gn
+                metadata['gracenote'] = recognized_song_gn
+
+        except Exception:
+            logging.getLogger('logstash-logger').exception('recognize_sample_gn')
 
         try:
             # FIXME: get_duration() should not block

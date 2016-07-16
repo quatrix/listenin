@@ -26,7 +26,10 @@ import click
 @click.option('--acr-key', required=True, help='ACRCloud Access Key')
 @click.option('--acr-secret', required=True, help='ACRCloud Access Secret')
 @click.option('--es-host', default='http://localhost:9200', help='ElasticSearch host')
-def main(port, samples_root, base_url, n_samples, acr_key, acr_secret, es_host):
+@click.option('--gn-client-id', required=True, help='Gracenote cliet id')
+@click.option('--gn-user-id', required=True, help='Gracenote user id')
+@click.option('--gn-license', required=True, help='Gracenote license file')
+def main(port, samples_root, base_url, n_samples, acr_key, acr_secret, es_host, gn_client_id, gn_user_id, gn_license):
     logstash_handler = logstash.LogstashHandler('localhost', 5959, version=1)
 
     logstash_logger = logging.getLogger('logstash-logger')
@@ -41,6 +44,12 @@ def main(port, samples_root, base_url, n_samples, acr_key, acr_secret, es_host):
         'timeout':10,
     }
 
+    gn_config = {
+        'client_id': gn_client_id,
+        'user_id': gn_user_id,
+        'license': gn_license,
+    }
+
     recognizer = ACRCloudRecognizer(acr_config)
 
     es = ES(es_host)
@@ -51,18 +60,20 @@ def main(port, samples_root, base_url, n_samples, acr_key, acr_secret, es_host):
         base_url=base_url,
     )
 
-    app = Application([
-        (r"/upload/(.+)/", UploadHandler),
-        (r"/clubs", ClubsHandler),
-        (r"/spy", SpyHandler),
-        (r"/health", HealthHandler),
-    ], 
+    app = Application(
+        [
+            (r"/upload/(.+)/", UploadHandler),
+            (r"/clubs", ClubsHandler),
+            (r"/spy", SpyHandler),
+            (r"/health", HealthHandler),
+        ],
         debug=True,
         base_url=base_url,
         samples_root=samples_root,
         recognizer=recognizer,
         es=es,
         samples=samples_cache,
+        gn_config=gn_config,
     )
 
     enable_pretty_logging()
