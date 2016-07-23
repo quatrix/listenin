@@ -37,8 +37,8 @@ def age(t):
 
 
 def unix_time_to_readable_date(t):
-    tz = pytz.timezone('Asia/Jerusalem')
-    return datetime.datetime.fromtimestamp(t, tz=tz).strftime('%Y-%m-%d %H:%M:%S')
+    tz = pytz.timezone('UTC')
+    return datetime.datetime.fromtimestamp(t, tz=tz).strftime('%Y-%m-%dT%H:%M:%SZ')
 
 
 def number_part_of_sample(sample):
