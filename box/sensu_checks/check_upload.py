@@ -17,19 +17,17 @@ CRITICAL = 2
 UNKNOWN = 2
 
 MINUTE = 60
-API_URL = 'http://api.listenin.io/health'
+API_URL = 'http://api.listenin.io/health?box={}'
 
 
 def check_upload(box_name, upload_threshold):
     """Checks last upload time for box_name and returns Nagios"""
 
     headers = {'Cache-Control': 'no-cache'}
-    health = requests.get(API_URL, headers=headers).json()
-    box_name = 'listenin-' + box_name
+    health = requests.get(API_URL.format(box_name), headers=headers).json()
 
-    box = health[box_name]
-    last_blink = box['last_blink']
-    last_upload = box['last_upload']['time']
+    last_blink = health['last_blink']
+    last_upload = health['last_upload']
 
     if last_blink is None:
         print('{} last blinked more than two days'.format(box_name))
