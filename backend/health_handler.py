@@ -53,4 +53,4 @@ class HealthHandler(BaseHandler):
     def get(self):
         box = self.get_argument('box')
         health = yield self._get_box_health(box)
-        self.finish({box: health})
+        self.finish(health)
