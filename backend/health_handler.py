@@ -30,7 +30,7 @@ class HealthHandler(BaseHandler):
                 message='success'
             )
         except Exception:
-            raise Return({'time': None})
+            raise Return(None)
 
         raise Return(last_upload['_source']['@timestamp'])
 
