@@ -1,10 +1,12 @@
 #!/usr/bin/env python
-from sh import sensu_cli
 import datetime
 import json
-import click
 import os
 import time
+import click
+
+os.environ["PATH"] += ':/usr/local/bin'
+from sh import sensu_cli
 
 
 VENUE_CLOSED = 'VENUE_CLOSED'

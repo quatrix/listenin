@@ -1,0 +1,47 @@
+{
+    "query": {
+        "filtered": {
+            "filter": {
+                "bool": {
+                    "must": [
+                        {
+                            "constant_score": {
+                                "filter": {
+                                    "exists": {
+                                        "field": "acrcloud.title"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "query": {
+                                "match": {
+                                    "message": {
+                                        "query": "success",
+                                        "type": "phrase"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "query": {
+                                "match": {
+                                    "boxid.raw": {
+                                        "query": "rothschild12",
+                                        "type": "phrase"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "query": {
+                "query_string": {
+                    "analyze_wildcard": true,
+                    "query": "*"
+                }
+            }
+        }
+    }
+}
