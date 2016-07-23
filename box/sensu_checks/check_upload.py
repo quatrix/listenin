@@ -23,17 +23,25 @@ API_URL = 'http://api.listenin.io/health?box={}'
 def check_upload(box_name, upload_threshold):
     """Checks last upload time for box_name and returns Nagios"""
 
-    headers = {'Cache-Control': 'no-cache'}
-    health = requests.get(API_URL.format(box_name), headers=headers).json()
+    try:
+        headers = {'Cache-Control': 'no-cache'}
+        response = requests.get(API_URL.format(box_name), headers=headers)
+        response.raise_for_status()
+    except Exception as e:
+        print('{} failed getting health from backend: {}'.format(box_name, e))
+        return UNKNOWN
 
-    last_upload = health['last_upload']
+    try:
+        health = response.json()
+    except Exception as e:
+        print('{} failed decoding health response: {}'.format(box_name, e))
+        return UNKNOWN
 
-    if last_upload is None:
-        print('{} last uploaded more than two days'.format(box_name))
-        return CRITICAL
-
-    now = datetime.now(tzutc())
-    last_upload = now - parser.parse(last_upload)
+    if 'last_upload' not in health:
+        print('{} last_upload not found in health results'.format(box_name))
+        return UNKNOWN
+        
+    last_upload = datetime.now(tzutc()) - parser.parse(health['last_upload'])
 
     if last_upload.total_seconds() > upload_threshold:
         print('{} last uploaded {}'.format(box_name, naturaltime(last_upload)))
