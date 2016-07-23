@@ -26,12 +26,7 @@ def check_upload(box_name, upload_threshold):
     headers = {'Cache-Control': 'no-cache'}
     health = requests.get(API_URL.format(box_name), headers=headers).json()
 
-    last_blink = health['last_blink']
     last_upload = health['last_upload']
-
-    if last_blink is None:
-        print('{} last blinked more than two days'.format(box_name))
-        return CRITICAL
 
     if last_upload is None:
         print('{} last uploaded more than two days'.format(box_name))
@@ -39,11 +34,6 @@ def check_upload(box_name, upload_threshold):
 
     now = datetime.now(tzutc())
     last_upload = now - parser.parse(last_upload)
-    last_blink = now - parser.parse(last_blink)
-
-    if last_blink.total_seconds() > 10 * MINUTE:
-        print('{} last blinked {}'.format(box_name, naturaltime(last_blink)))
-        return CRITICAL
 
     if last_upload.total_seconds() > upload_threshold:
         print('{} last uploaded {}'.format(box_name, naturaltime(last_upload)))
