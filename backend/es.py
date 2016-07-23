@@ -79,12 +79,13 @@ class ES(object):
     @coroutine
     def get_last_document(self, index='logstash', **kwargs):
         query = self.gen_last_document_query(**kwargs)
-
-        today, yesterday = date.today(), date.today() - timedelta(1)
+        
+        today = date.today()
+        yesterday, tomorrow = today - timedelta(1), today + timedelta(1)
 
         index = ','.join([
             '{}-{}'.format(index, d.strftime('%Y.%m.%d'))
-             for d in today, yesterday
+             for d in tomorrow, today, yesterday
         ])
 
 
