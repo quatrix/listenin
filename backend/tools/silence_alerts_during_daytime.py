@@ -76,6 +76,10 @@ def main(opening_hour, closing_hour, closing_hour_weekend, timezone):
         datetime.time(closing_hour),
     )
 
+    click.echo('opening hour: {} closing hour: {} is_weekend: {} now: {} venue open: {}'.format(
+        opening_hour, closing_hour, is_weekend(), now, venue_is_open
+    ))
+
     for venue in get_venues():
         if venue_is_open:
             unsilence(venue)
