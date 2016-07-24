@@ -1,0 +1,1 @@
+*/1 * * * * root ping -c1 google.com || (echo "restarting network-manager due to no ping response from google.com"; /etc/init.d/network-manager restart) 2>&1 | logger -t watch_wifi_connectivity
