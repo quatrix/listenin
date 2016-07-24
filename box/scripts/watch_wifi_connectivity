@@ -1,1 +1,1 @@
-*/1 * * * * root nc -zv google.com 80 || (echo "restarting network-manager due to no http response from google.com"; /etc/init.d/network-manager restart) 2>&1 | logger -t watch_wifi_connectivity
+*/1 * * * * root timeout 3 nc -z google.com 80 || (echo "restarting network-manager due to no http response from google.com"; /etc/init.d/network-manager restart) 2>&1 | logger -t watch_wifi_connectivity
