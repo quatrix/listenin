@@ -75,7 +75,7 @@ def send_report(subject, html, recipient):
 
 
 def _get_closing_hour(venue):
-    day = datetime.datetime.today()
+    day = today_at(_hours[venue]['_tz'])
 
     while True:
         day -= datetime.timedelta(days=1)
@@ -148,9 +148,6 @@ def main(recp):
         actual = _utc_to_localtime(box['last_upload'], local_tz=_hours[box_name]['_tz'])
 
         if actual < expected:
-            if (expected - actual).total_seconds() < 60 * 10:
-                continue
-
             last_upload = datetime.datetime.now(tz.tzutc()) - parser.parse(box['last_upload'])
 
             extra_info = ' (expected: {})'.format(expected.strftime('%m/%d %H:%M'))
@@ -163,7 +160,6 @@ def main(recp):
                 actual.strftime('%m/%d %H:%M'),
                 extra_info,
             ))
-
 
     report = create_report(report)
     print(report)
