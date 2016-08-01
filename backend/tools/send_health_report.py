@@ -167,7 +167,6 @@ def main(recp):
 
     report = create_report(report)
     print(report)
-    return
 
     for r in recp:
         send_report(
