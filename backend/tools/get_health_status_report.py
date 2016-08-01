@@ -88,14 +88,7 @@ def _utc_to_localtime(d, local_tz):
     return utc.astimezone(tz.gettz(local_tz))
 
 
-def _set_tz():
-    os.environ['TZ'] = 'Israel'
-    time.tzset()
-
-
 def main():
-    _set_tz()
-
     health = _get_health()
 
     for box_name, box in health.iteritems():
