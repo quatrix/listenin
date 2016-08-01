@@ -63,13 +63,13 @@ _hours = {
 }
 
 
-def send_report(subject, text, recipient):
+def send_report(subject, html, recipient):
     request_url = 'https://api.mailgun.net/v2/{0}/messages'.format(_mailgun['sandbox'])
     request = requests.post(request_url, auth=('api', _mailgun['key']), data={
         'from': 'no-reply@listenin.io',
         'to': recipient,
         'subject': subject,
-        'text': text, 
+        'html': html, 
     })
     print(request.text)
 
@@ -113,24 +113,10 @@ def today_at(local_tz):
     return utc.astimezone(tz.gettz(local_tz))
 
 
-def create_report(report):
-    if report:
-        s = '{} issues:'.format(len(report))
-        s += '\n' + '-'*len(s) + '\n\n'
-        s += '\n'.join(report)
-        return s
-    else:
-        return 'All good in the hood! :)'
-
-def create_html_report(report):
-    template = """
+template = """
 <html>
 <body>
 <pre>
- _   _   __ _____ ___ __  _ _ __  _  
-| | | |/' _/_   _| __|  \| | |  \| | 
-| |_| |`._`. | | | _|| | ' | | | ' | 
-|___|_||___/ |_| |___|_|\__|_|_|\__| 
 
 {}
 </pre>
@@ -138,7 +124,16 @@ def create_html_report(report):
 </html>
 """
 
-    return template.format(report)
+def create_report(report):
+    if not report:
+        return template.format('All good in the hood! :)')
+
+    s = '{} issues:'.format(len(report))
+    s += '\n' + '-' * len(s) + '\n\n'
+    s += '\n'.join(report)
+
+    return template.format(s)
+
 
 @click.command()
 @click.option('--recp', '-r', multiple=True, required=True)
@@ -153,6 +148,9 @@ def main(recp):
         actual = _utc_to_localtime(box['last_upload'], local_tz=_hours[box_name]['_tz'])
 
         if actual < expected:
+            if (expected - actual).total_seconds() < 60 * 10:
+                continue
+
             last_upload = datetime.datetime.now(tz.tzutc()) - parser.parse(box['last_upload'])
 
             extra_info = ' (expected: {})'.format(expected.strftime('%m/%d %H:%M'))
@@ -160,7 +158,7 @@ def main(recp):
             if last_upload.total_seconds() > 60 * 60 * 24:
                 extra_info = ' ({})'.format(naturaltime(last_upload))
 
-            report.append('* {} last sample at {}{}'.format(
+            report.append('* {} - last sample at {}{}'.format(
                 box_name,
                 actual.strftime('%m/%d %H:%M'),
                 extra_info,
@@ -169,11 +167,12 @@ def main(recp):
 
     report = create_report(report)
     print(report)
+    return
 
     for r in recp:
         send_report(
             subject='ListenIn daily health status report ({})'.format(today_at('Israel').strftime('%m/%d')),
-            text=report,
+            html=report,
             recipient=r,
         )
 if __name__ == '__main__':
