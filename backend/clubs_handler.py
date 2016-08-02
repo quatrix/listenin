@@ -121,7 +121,11 @@ class ClubsHandler(BaseHandler):
             club = copy.deepcopy(self._clubs[club_id])
             club['logo'] = self.get_logo(club_id)
             club['samples'] = samples
-            club['cover'] = '{}/images/{}/cover.jpg'.format(self.settings['base_url'], club_id)
+            club['cover'] = '{}/images/{}/cover.jpg?version={}'.format(
+                self.settings['base_url'],
+                club_id,
+                self.settings['images_version'],
+            )
             club['distance'] = self.get_distance_from_client(club['location__'])
             clubs.append(club)
 
