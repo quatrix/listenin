@@ -137,10 +137,10 @@ def create_report(report):
 
 @click.command()
 @click.option('--recp', '-r', multiple=True, required=True)
-def main(recp):
+@click.option('--no-send', '-n', is_flag=True, default=False)
+def main(recp, no_send):
     health = _get_health()
 
-    recipients = ['evil.legacy@gmail.com', 'erez.hochman@gmail.com']
     report = []
 
     for box_name, box in health.iteritems():
@@ -163,6 +163,9 @@ def main(recp):
 
     report = create_report(report)
     print(report)
+
+    if no_send:
+        return
 
     for r in recp:
         send_report(
