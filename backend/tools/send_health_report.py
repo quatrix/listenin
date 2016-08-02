@@ -7,9 +7,10 @@ import calendar
 import os
 import time
 import click
+import math
 
 from dateutil import tz, parser
-from humanize import naturaltime
+import humanize
 
 _mailgun = {
     'key': 'key-32c14a9ca66a0d37282d27ac739dc493',
@@ -135,6 +136,12 @@ def create_report(report):
     return template.format(s)
 
 
+def format_time_difference(expected, actual):
+    expected = expected.replace(hour=0, minute=0, second=0)
+    actual = actual.replace(hour=0, minute=0, second=0)
+    return humanize.naturaltime(expected - actual)
+
+
 @click.command()
 @click.option('--recp', '-r', multiple=True, required=True)
 @click.option('--no-send', '-n', is_flag=True, default=False)
@@ -148,18 +155,23 @@ def main(recp, no_send):
         actual = _utc_to_localtime(box['last_upload'], local_tz=_hours[box_name]['_tz'])
 
         if actual < expected:
-            last_upload = datetime.datetime.now(tz.tzutc()) - parser.parse(box['last_upload'])
+            if (expected - actual).total_seconds() < 60 * 15:
+                continue
 
-            extra_info = ' (expected: {})'.format(expected.strftime('%m/%d %H:%M'))
+            last_upload_delta = datetime.datetime.now(tz.tzutc()) - parser.parse(box['last_upload'])
 
-            if last_upload.total_seconds() > 60 * 60 * 24:
-                extra_info = ' ({})'.format(naturaltime(last_upload))
+            if last_upload_delta.total_seconds() > 60 * 60 * 24:
+                msg = 'on {} ({})'.format(
+                    actual.strftime('%m/%d'),
+                    format_time_difference(expected, actual)
+                )
+            else:
+                msg = 'at {} (expected: {})'.format(
+                    actual.strftime('%H:%M'),
+                    expected.strftime('%H:%M')
+                )
 
-            report.append('* {} - last sample at {}{}'.format(
-                box_name,
-                actual.strftime('%m/%d %H:%M'),
-                extra_info,
-            ))
+            report.append('* {} - last upload {}'.format(box_name, msg))
 
     report = create_report(report)
     print(report)
