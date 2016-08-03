@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import os
 import copy
 from operator import itemgetter
 
@@ -76,6 +75,15 @@ class ClubsHandler(BaseHandler):
             'phone': '+972-3-656-5155',
             'location': {'lat': 32.0622372, 'lng': 34.774789},
             'location__': (32.0622372,34.774789),
+            'wifi': 'whoknows',
+        },
+        'bootleg' : {
+            'name': 'Bootleg',
+            'details': 'Bootleg',
+            'address': 'King George St 48, Tel Aviv-Yafo',
+            'phone': '+972-52-805-4448',
+            'location': {'lat': 32.0743404, 'lng': 34.7759128},
+            'location__': (32.0743404,34.7759128),
             'wifi': 'whoknows',
         },
     }

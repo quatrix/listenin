@@ -61,6 +61,13 @@ _hours = {
         '_tz': 'Israel',
         '_default': (19, 03),
     },
+
+    'bootleg': {
+        '_tz': 'Israel',
+        '_default': (23, 04),
+        'Thursday': (23, 06),
+        'Friday': (23, 06),
+    },
 }
 
 
