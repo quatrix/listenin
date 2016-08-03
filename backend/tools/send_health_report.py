@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
+from operator import itemgetter
 import datetime
 import requests
 import calendar
@@ -16,7 +17,6 @@ _mailgun = {
     'key': 'key-32c14a9ca66a0d37282d27ac739dc493',
     'sandbox': 'mg.listenin.io',
 }
-
 
 _hours = {
     'radio': {
@@ -118,7 +118,6 @@ template = """
 <html>
 <body>
 <pre>
-
 {}
 </pre>
 </body>
@@ -131,7 +130,7 @@ def create_report(report):
 
     s = '{} issues:'.format(len(report))
     s += '\n' + '-' * len(s) + '\n\n'
-    s += '\n'.join(report)
+    s += '\n'.join(map(itemgetter(1), sorted(report, key=itemgetter(0), reverse=True)))
 
     return template.format(s)
 
@@ -171,7 +170,7 @@ def main(recp, no_send):
                     expected.strftime('%H:%M')
                 )
 
-            report.append('* {} - last upload {}'.format(box_name, msg))
+            report.append((last_upload_delta, '* {} - last upload {}'.format(box_name, msg)))
 
     report = create_report(report)
     print(report)
