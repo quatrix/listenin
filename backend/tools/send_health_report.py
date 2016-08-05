@@ -18,6 +18,8 @@ _mailgun = {
     'sandbox': 'mg.listenin.io',
 }
 
+_ignore_boxes = {'bootleg'}
+
 _hours = {
     'radio': {
         '_tz': 'Israel',
@@ -157,6 +159,9 @@ def main(recp, no_send):
     report = []
 
     for box_name, box in health.iteritems():
+        if box_name in _ignore_boxes:
+            continue
+
         expected = _get_closing_hour(box_name)
         actual = _utc_to_localtime(box['last_upload'], local_tz=_hours[box_name]['_tz'])
 
