@@ -8,7 +8,7 @@ from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search, Q
 from dateutil import tz
 
-client = Elasticsearch(['http://listenin.io:9200'])
+client = Elasticsearch(['http://listenin.io:9200'], timeout=20)
 
 
 class NoData(Exception):
@@ -19,9 +19,9 @@ def mean(lst):
     return sum(lst) / len(lst)
 
 
-def gen_date_matrix(start_hour, hours, days=7):
+def gen_date_matrix(start_hour, hours, days=7, days_back_offset=0):
     start_day = datetime.datetime.now()
-    start_day -= datetime.timedelta(days=days)
+    start_day -= datetime.timedelta(days=days+days_back_offset)
     start_day = start_day.replace(hour=start_hour, minute=0, second=0, microsecond=0)
 
     matrix = []
@@ -259,9 +259,10 @@ def get_bpm(venue, start, end):
 @click.option('--blink-interval', help='blink interval', default=5)
 @click.option('--days', help='for how many days to generate report', default=7)
 @click.option('--start-hour', help='when place opens', default=21)
-def main(venue, upload_interval, blink_interval, days, start_hour):
-    matrix = gen_date_matrix(start_hour=start_hour, hours=[2, 3, 3], days=days)
-    mid_end = gen_date_matrix(start_hour=23, hours=[6], days=days)
+@click.option('--start-day', help='how many days back to start', default=0)
+def main(venue, upload_interval, blink_interval, days, start_hour, start_day):
+    matrix = gen_date_matrix(days_back_offset=start_day, start_hour=start_hour, hours=[2, 3, 3], days=days)
+    mid_end = gen_date_matrix(days_back_offset=start_day, start_hour=23, hours=[6], days=days)
 
     report = {
         'venue': venue,
