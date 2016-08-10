@@ -33,8 +33,8 @@ class ClubsHandler(BaseHandler):
             'wifi': 'whoknows',
         },
         'annaloulou' : {
-            'name': 'Anna Loulou Bar',
-            'details': 'Anna Loulou Bar',
+            'name': 'Anna Loulou',
+            'details': 'Anna Loulou',
             'address': 'HaPninim 2, Tel Aviv-Yafo, 6803001, Israel',
             'phone': '+972-3-716-8221',
             'location': {'lat': 32.0534479, 'lng': 34.7538248},
@@ -42,8 +42,8 @@ class ClubsHandler(BaseHandler):
             'wifi': 'whoknows',
         },
         'limalima' : {
-            'name': 'Lima Lima Bar',
-            'details': 'Lima Lima Bar',
+            'name': 'Lima Lima',
+            'details': 'Lima Lima',
             'address': 'Lilienblum St 42, Tel Aviv-Yafo',
             'phone': '+972-3-560-0924',
             'location': {'lat': 32.0623976, 'lng': 34.7699819},
