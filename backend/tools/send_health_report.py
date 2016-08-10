@@ -163,6 +163,11 @@ def main(recp, no_send):
             continue
 
         expected = _get_closing_hour(box_name)
+
+        if box['last_upload'] is None:
+            report.append((datetime.timedelta(days=999), '* {} - no samples found'.format(box_name)))
+            continue
+
         actual = _utc_to_localtime(box['last_upload'], local_tz=_hours[box_name]['_tz'])
 
         if actual < expected:
@@ -172,8 +177,7 @@ def main(recp, no_send):
             last_upload_delta = datetime.datetime.now(tz.tzutc()) - parser.parse(box['last_upload'])
 
             if last_upload_delta.total_seconds() > 60 * 60 * 24:
-                msg = 'on {} ({})'.format(
-                    actual.strftime('%m/%d'),
+                msg = 'was {}'.format(
                     format_time_difference(expected, actual)
                 )
             else:
