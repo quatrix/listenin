@@ -144,12 +144,6 @@ def create_report(report):
     return template.format(s)
 
 
-def format_time_difference(expected, actual):
-    expected = expected.replace(hour=0, minute=0, second=0)
-    actual = actual.replace(hour=0, minute=0, second=0)
-    return humanize.naturaltime(expected - actual)
-
-
 @click.command()
 @click.option('--recp', '-r', multiple=True, required=True)
 @click.option('--no-send', '-n', is_flag=True, default=False)
@@ -176,10 +170,8 @@ def main(recp, no_send):
 
             last_upload_delta = datetime.datetime.now(tz.tzutc()) - parser.parse(box['last_upload'])
 
-            if last_upload_delta.total_seconds() > 60 * 60 * 24:
-                msg = 'was {}'.format(
-                    format_time_difference(expected, actual)
-                )
+            if last_upload_delta.days:
+                msg = 'was {}'.format(humanize.naturaltime(last_upload_delta))
             else:
                 msg = 'at {} (expected: {})'.format(
                     actual.strftime('%H:%M'),
