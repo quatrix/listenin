@@ -11,19 +11,38 @@ from utils import normalize_acrcloud_response, is_same_song, get_metadata_from_j
 from concurrent.futures import ThreadPoolExecutor
 
 
+def is_recognized(sample):
+    """
+    Determines if sample is recognized by music fingerprinting
+    """
+
+    if sample is None:
+        return False
+
+    return sample['metadata'] is not None and 'recognized_song' in sample['metadata']
+
+
 class UploadHandler(BaseHandler):
     _thread_pool = ThreadPoolExecutor(4)
 
     @coroutine
-    def recognize_sample(self, sample_path):
-        f = self.settings['recognizer'].recognize_by_file
-        r = yield self._thread_pool.submit(f, sample_path, 0)
-        r = json.loads(r)
+    def _recognize_sample_with_acrcloud(self, sample_path):
+        recognizer = self.settings['recognizer'].recognize_by_file
+        res = yield self._thread_pool.submit(recognizer, sample_path, 0)
+        res = json.loads(res)
 
-        if 'metadata' not in r:
+        if 'metadata' not in res:
             raise Return(None)
 
-        raise Return(r['metadata']['music'][0])
+        raise Return(res['metadata']['music'][0])
+
+    @coroutine
+    def recognize_sample_with_acrcloud(self, sample_path):
+        recognized_song = yield self._recognize_sample_with_acrcloud(sample_path)
+
+        if recognized_song:
+            self.extra_log_args['acrcloud'] = normalize_acrcloud_response(recognized_song)
+            raise Return(recognized_song)
 
     @coroutine
     def _recognize_sample_with_gracenote(self, sample_path):
@@ -52,34 +71,24 @@ class UploadHandler(BaseHandler):
         raise Return(recognized_song)
 
     @coroutine
-    def recognize_sample_with_acrcloud(self, sample_path):
-        recognized_song = yield self.recognize_sample(sample_path)
-
-        if recognized_song:
-            self.extra_log_args['acrcloud'] = normalize_acrcloud_response(recognized_song)
-            raise Return(recognized_song)
-
-    @coroutine
     def write_metadata(self, sample_path, metadata_path):
         metadata = {}
 
         try:
-            gracenote = yield self.recognize_sample_with_gracenote(sample_path)
+            metadata['gracenote'] = yield self.recognize_sample_with_gracenote(sample_path)
 
-            if gracenote:
-                metadata['gracenote'] = gracenote
-            else:
-                acrcloud = yield self.recognize_sample_with_acrcloud(sample_path)
-                if acrcloud:
-                    metadata['recognized_song'] = acrcloud
+            if not metadata['gracenote']:
+                metadata['acrcloud'] = yield self.recognize_sample_with_acrcloud(sample_path)
 
-        except Exception as e:
-            logging.getLogger('logstash-logger').error('recognize_sample: %s', e)
+        except Exception:
+            logging.getLogger('logstash-logger').exception('recognize_sample')
+
+        metadata = {k: v for k, v in metadata.iteritems() if v is not None}
 
         try:
             open(metadata_path, 'w').write(json.dumps(metadata))
-        except Exception as e:
-            logging.getLogger('logstash-logger').error('write metadata: %s', e)
+        except Exception:
+            logging.getLogger('logstash-logger').exception('write metadata')
 
     def is_fresh(self, sample):
         """
@@ -91,16 +100,6 @@ class UploadHandler(BaseHandler):
             return False
 
         return (int(time.time()) - sample['_created']) < self.settings['sample_interval']
-
-    def is_recognized(self, sample):
-        """
-        Determines if sample is recognized by music fingerprinting
-        """
-
-        if sample is None:
-            return False
-
-        return sample['metadata'] is not None and 'recognized_song' in sample['metadata']
 
     @coroutine
     def post(self, boxid):
@@ -132,7 +131,7 @@ class UploadHandler(BaseHandler):
             os.mkdir(samples_dir)
 
         # if latest sample is fresh and recognized, ignore current sample
-        if self.is_fresh(latest_sample) and self.is_recognized(latest_sample):
+        if self.is_fresh(latest_sample) and is_recognized(latest_sample):
             msg = 'latest sample is fresh and recognized'
             logging.getLogger('logstash-logger').info(msg)
             return
@@ -153,7 +152,7 @@ class UploadHandler(BaseHandler):
 
         # nevermind the freshness of the latest sample, if current sample
         # is recognized and it's the same song as the latest sample, ignore current sample
-        if self.is_recognized(latest_sample) and 'recognized_song' in metadata:
+        if is_recognized(latest_sample) and 'recognized_song' in metadata:
             latest_song = latest_sample['metadata']['recognized_song']
             current_song = metadata['recognized_song']
 
@@ -167,7 +166,7 @@ class UploadHandler(BaseHandler):
         # if latest sample still fresh but not recognized, and the current
         # sample is recognized, we want to replace latest sample with current sample
         # otherwise, keep the latest sample and ignore current sample.
-        if self.is_fresh(latest_sample) and not self.is_recognized(latest_sample):
+        if self.is_fresh(latest_sample) and not is_recognized(latest_sample):
             if 'recognized_song' in metadata:
                 replace_latest_with_current = True
             else:
