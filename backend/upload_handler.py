@@ -7,8 +7,12 @@ from tempfile import NamedTemporaryFile
 from tornado.gen import coroutine, Return
 from tornado.process import Subprocess
 from base_handler import BaseHandler
-from utils import normalize_acrcloud_response, is_same_song, get_metadata_from_json
+from utils import normalize_acrcloud_response, is_same_song, normalize_metadata
 from concurrent.futures import ThreadPoolExecutor
+
+
+class IgnoreSample(Exception):
+    pass
 
 
 def is_recognized(sample):
@@ -71,7 +75,7 @@ class UploadHandler(BaseHandler):
         raise Return(recognized_song)
 
     @coroutine
-    def write_metadata(self, sample_path, metadata_path):
+    def get_metadata(self, sample_path):
         metadata = {}
 
         try:
@@ -85,10 +89,7 @@ class UploadHandler(BaseHandler):
 
         metadata = {k: v for k, v in metadata.iteritems() if v is not None}
 
-        try:
-            open(metadata_path, 'w').write(json.dumps(metadata))
-        except Exception:
-            logging.getLogger('logstash-logger').exception('write metadata')
+        raise Return(metadata)
 
     def is_fresh(self, sample):
         """
@@ -101,6 +102,54 @@ class UploadHandler(BaseHandler):
 
         return (int(time.time()) - sample['_created']) < self.settings['sample_interval']
 
+    def is_latest_sample_fresh_and_recognized(self, latest_sample):
+        """
+        Checks if latest sample fresh and recognized.
+        """
+
+        if self.is_fresh(latest_sample) and is_recognized(latest_sample):
+            msg = 'latest sample is fresh and recognized'
+            logging.getLogger('logstash-logger').info(msg)
+
+            return True
+
+    def is_same_song(self, latest_sample, metadata):
+        """
+        Checks if current sample is a duplicate of latest sample 
+        """
+
+        if is_recognized(latest_sample) and 'recognized_song' in metadata:
+            latest_song = latest_sample['metadata']['recognized_song']
+            current_song = metadata['recognized_song']
+
+            if is_same_song(latest_song, current_song):
+                msg = 'ignoring current sample as it is recognized as the latest sample'
+                logging.getLogger('logstash-logger').info(msg)
+                return True
+
+    def should_replace_latest_with_current(self, latest_sample, metadata):
+        """
+        Should replace latest with current if latest sample is stale
+        or if it's fresh and unrecognized, amd current sample is recognized
+        """
+
+        if not self.is_fresh(latest_sample):
+            return
+
+        if not is_recognized(latest_sample) and 'recognized_song' in metadata:
+            return True
+
+    def is_latest_sample_fresh_and_current_unrecognized(self, latest_sample, metadata):
+        """
+        Checks if latest sample still fresh for replacing, and that current sample is recognized
+        """
+
+        if self.is_fresh(latest_sample) and 'recognized_song' not in metadata:
+            msg = 'latest sample still fresh and current sample unrecognized, ignoring'
+            logging.getLogger('logstash-logger').info(msg)
+
+            return True
+        
     @coroutine
     def post(self, boxid):
         """
@@ -130,59 +179,32 @@ class UploadHandler(BaseHandler):
         if not os.path.isdir(samples_dir):
             os.mkdir(samples_dir)
 
-        # if latest sample is fresh and recognized, ignore current sample
-        if self.is_fresh(latest_sample) and is_recognized(latest_sample):
-            msg = 'latest sample is fresh and recognized'
-            logging.getLogger('logstash-logger').info(msg)
+        if self.is_latest_sample_fresh_and_recognized(latest_sample):
             return
 
-        tmp_file = NamedTemporaryFile(delete=False, suffix='.mp3')
-        tmp_metadata_file = tmp_file.name.replace('.mp3', '.json')
-        tmp_file.write(self.request.body)
-        tmp_file.flush()
+        with NamedTemporaryFile(delete=False, suffix='.mp3') as tmp_file:
+            tmp_file.write(self.request.body)
+            tmp_file.flush()
 
-        yield self.write_metadata(tmp_file.name, tmp_metadata_file)
+            full_metadata = yield self.get_metadata(tmp_file.name)
+            metadata = normalize_metadata(full_metadata)
 
-        # get_metadata_from_json normalizes the json a bit
-        # FIXME: this is just for sake of uniformaty, but actaully
-        # write_metadata should instead return metadata
-        # and metadata normalization should happen on metadata dict
-        # not on json
-        metadata = get_metadata_from_json(tmp_metadata_file)
-
-        # nevermind the freshness of the latest sample, if current sample
-        # is recognized and it's the same song as the latest sample, ignore current sample
-        if is_recognized(latest_sample) and 'recognized_song' in metadata:
-            latest_song = latest_sample['metadata']['recognized_song']
-            current_song = metadata['recognized_song']
-
-            if is_same_song(latest_song, current_song):
-                msg = 'ignoring current sample as it is recognized as the latest sample'
-                logging.getLogger('logstash-logger').info(msg)
+            if self.is_same_song(latest_sample, metadata):
                 return
 
-        replace_latest_with_current = False
+            if self.is_latest_sample_fresh_and_current_unrecognized(latest_sample, metadata):
+                return
 
-        # if latest sample still fresh but not recognized, and the current
-        # sample is recognized, we want to replace latest sample with current sample
-        # otherwise, keep the latest sample and ignore current sample.
-        if self.is_fresh(latest_sample) and not is_recognized(latest_sample):
-            if 'recognized_song' in metadata:
-                replace_latest_with_current = True
+            replace_latest = self.should_replace_latest_with_current(latest_sample, metadata)
+
+            os.chmod(tmp_file.name, 0644)
+            os.rename(tmp_file.name, sample_path)
+            open(metadata_path, 'w').write(json.dumps(full_metadata))
+
+            if replace_latest:
+                msg = 'latest sample still fresh but unrecognized, replacing with recognized'
+                logging.getLogger('logstash-logger').info(msg)
+                self.settings['samples'].replace_latest(sample_id, boxid)
             else:
-                msg = 'latest sample still fresh but both current sample and latest ' \
-                      'sample are not recognized, ignoiring current sample'
-                logging.getLogger('logstash-logger').info(msg)
-                return
-
-        os.chmod(tmp_file.name, 0644)
-        os.rename(tmp_file.name, sample_path)
-        os.rename(tmp_metadata_file, metadata_path)
-
-        if replace_latest_with_current:
-            msg = 'latest sample still fresh but unrecognized, replacing with recognized'
-            logging.getLogger('logstash-logger').info(msg)
-            self.settings['samples'].replace_latest(sample_id, boxid)
-        else:
-            logging.getLogger('logstash-logger').info('adding new sample')
-            self.settings['samples'].add(sample_id, boxid)
+                logging.getLogger('logstash-logger').info('adding new sample')
+                self.settings['samples'].add(sample_id, boxid)

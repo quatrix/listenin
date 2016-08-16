@@ -3,6 +3,7 @@ import time
 import datetime
 import json
 import logging
+import copy
 
 import pytz
 
@@ -56,16 +57,8 @@ def is_same_song(a, b):
     return True
 
 
-def get_metadata_from_json(sample_metadata_path):
-    """
-    Reads a sample metadata json and returns it normalized
-    """
-
-    try:
-        metadata = json.loads(open(sample_metadata_path).read())
-    except IOError:
-        logging.exception('get_metadata')
-        return
+def normalize_metadata(metadata):
+    metadata = copy.deepcopy(metadata)
 
     if 'gracenote' in metadata:
         metadata['recognized_song'] = normalize_gracenote_response(metadata['gracenote'])
@@ -74,3 +67,15 @@ def get_metadata_from_json(sample_metadata_path):
         metadata['recognized_song'] = normalize_acrcloud_response(metadata['recognized_song'])
 
     return metadata
+
+
+def get_metadata_from_json(sample_metadata_path):
+    """
+    Reads a sample metadata json and returns it normalized
+    """
+
+    try:
+        return normalize_metadata(json.loads(open(sample_metadata_path).read()))
+    except IOError:
+        logging.exception('get_metadata')
+        return
