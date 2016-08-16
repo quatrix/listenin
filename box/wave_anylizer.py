@@ -81,7 +81,8 @@ def parabolic(f, x):
 
 def is_noise(signal, sample_rate):
     freq = freq_from_fft(signal, sample_rate)
-    return 50.6 > freq > 49.4
+    return 50.6 > freq > 49.4 or freq < 4
+
 
 def is_silence(signal):
     peak_level = max(absolute(signal))
