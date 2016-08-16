@@ -7,3 +7,4 @@ journalbeat
 backend/gracenote.license
 backend/gn_*
 backend/user.txt
+backend/samples/

@@ -23,18 +23,24 @@ import click
 @click.option('--samples-root', default='/usr/share/nginx/html/listenin.io/uploads/', help='Where files go')
 @click.option('--base-url', default='http://listenin.io/', help='Base URL')
 @click.option('--n-samples', default=10, help='How many samples to return')
+@click.option('--sample-interval', default=4*60, help='How often should new samples come in')
 @click.option('--acr-key', required=True, help='ACRCloud Access Key')
 @click.option('--acr-secret', required=True, help='ACRCloud Access Secret')
 @click.option('--es-host', default='http://localhost:9200', help='ElasticSearch host')
 @click.option('--gn-client-id', required=True, help='Gracenote cliet id')
 @click.option('--gn-user-id', required=True, help='Gracenote user id')
 @click.option('--gn-license', required=True, help='Gracenote license file')
-def main(port, samples_root, base_url, n_samples, acr_key, acr_secret, es_host, gn_client_id, gn_user_id, gn_license):
+@click.option('--debug', default=False, help='Debug mode')
+def main(port, samples_root, base_url, n_samples, sample_interval, acr_key, acr_secret, es_host, gn_client_id, gn_user_id, gn_license, debug):
     logstash_handler = logstash.LogstashHandler('localhost', 5959, version=1)
 
     logstash_logger = logging.getLogger('logstash-logger')
     logstash_logger.setLevel(logging.INFO)
-    logstash_logger.addHandler(logstash_handler)
+
+    if debug:
+        logstash_logger.addHandler(logging.StreamHandler())
+    else:
+        logstash_logger.addHandler(logstash_handler)
 
     acr_config = {
         'host':'eu-west-1.api.acrcloud.com',
@@ -69,6 +75,7 @@ def main(port, samples_root, base_url, n_samples, acr_key, acr_secret, es_host, 
         ],
         debug=True,
         base_url=base_url,
+        sample_interval=sample_interval,
         samples_root=samples_root,
         recognizer=recognizer,
         es=es,

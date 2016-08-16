@@ -1,8 +1,11 @@
 import subprocess
 import time
-import pytz
 import datetime
+import json
+import logging
 from tempfile import NamedTemporaryFile
+
+import pytz
 
 
 def get_bpm(filename):
@@ -42,7 +45,7 @@ def unix_time_to_readable_date(t):
 
 
 def number_part_of_sample(sample):
-    return int(sample[:-4])
+    return int(sample.split('.')[0])
 
 
 def normalize_acrcloud_response(r):
@@ -67,3 +70,35 @@ def normalize_gracenote_response(r):
         'artists': [r['album_artist_name']],
         '_recognizer': 'gracenote',
     }
+
+
+def is_same_song(a, b):
+    """
+    Compares two songs and returns True if they are the same
+    """
+
+    for k in 'album', 'title', 'artists':
+        if a[k] != b[k]:
+            return False
+
+    return True
+
+
+def get_metadata_from_json(sample_metadata_path):
+    """
+    Reads a sample metadata json and returns it normalized
+    """
+
+    try:
+        metadata = json.loads(open(sample_metadata_path).read())
+    except IOError:
+        logging.exception('get_metadata')
+        return
+
+    if 'gracenote' in metadata:
+        metadata['recognized_song'] = normalize_gracenote_response(metadata['gracenote'])
+        del metadata['gracenote'] # FIXME this is while we're using two recognizers
+    elif 'recognized_song' in metadata:
+        metadata['recognized_song'] = normalize_acrcloud_response(metadata['recognized_song'])
+
+    return metadata
