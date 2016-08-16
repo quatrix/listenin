@@ -3,36 +3,8 @@ import time
 import datetime
 import json
 import logging
-from tempfile import NamedTemporaryFile
 
 import pytz
-
-
-def get_bpm(filename):
-    with NamedTemporaryFile(suffix='.wav') as wav:
-        subprocess.check_call(['sox', filename, '-c', '1', wav.name])
-
-        r = subprocess.check_output(
-            ['vamp-simple-host', 'qm-vamp-plugins:qm-tempotracker:tempo', wav.name],
-            stderr=subprocess.STDOUT,
-            universal_newlines=True
-        )
-
-        for l in r.split('\n'):
-            if l.endswith('bpm'):
-                return float(l.split()[-2])
-
-
-def get_duration(f):
-    r = subprocess.check_output(
-        ['sox', f, '-n', 'stat'],
-        stderr=subprocess.STDOUT,
-        universal_newlines=True
-    )
-
-    for l in r.split('\n'):
-        if l.startswith('Length'):
-            return float(l.split()[-1])
 
 
 def age(t):

@@ -7,8 +7,7 @@ from tempfile import NamedTemporaryFile
 from tornado.gen import coroutine, Return
 from tornado.process import Subprocess
 from base_handler import BaseHandler
-from utils import normalize_acrcloud_response, get_bpm, get_duration, is_same_song, \
-    get_metadata_from_json
+from utils import normalize_acrcloud_response, is_same_song, get_metadata_from_json
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -76,23 +75,6 @@ class UploadHandler(BaseHandler):
 
         except Exception as e:
             logging.getLogger('logstash-logger').error('recognize_sample: %s', e)
-
-        try:
-            # FIXME: get_duration() should not block
-            metadata['duration'] = get_duration(sample_path)
-            self.extra_log_args['sample_duration'] = metadata['duration']
-        except Exception:
-            logging.getLogger('logstash-logger').exception('get_duration')
-
-        try:
-            # FIXME: get_bpm() should not block
-            metadata['bpm'] = get_bpm(sample_path)
-            self.extra_log_args['bpm'] = metadata['bpm']
-        except Exception as e:
-            logging.getLogger('logstash-logger').error('get_bpm: %s', e)
-
-        if not metadata:
-            return
 
         try:
             open(metadata_path, 'w').write(json.dumps(metadata))
