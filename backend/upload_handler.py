@@ -11,10 +11,6 @@ from utils import normalize_acrcloud_response, is_same_song, normalize_metadata
 from concurrent.futures import ThreadPoolExecutor
 
 
-class IgnoreSample(Exception):
-    pass
-
-
 def is_recognized(sample):
     """
     Determines if sample is recognized by music fingerprinting
@@ -63,12 +59,20 @@ class UploadHandler(BaseHandler):
         ret = yield proc.stdout.read_until_close()
         raise Return(json.loads(ret))
 
+    def log(self):
+        logger = logging.getLogger('logstash-logger')
+
+        if hasattr(self, 'extra_log_args'):
+            return logging.LoggerAdapter(logger, self.extra_log_args)
+
+        return logger
+        
     @coroutine
     def recognize_sample_with_gracenote(self, sample_path):
         recognized_song = yield self._recognize_sample_with_gracenote(sample_path)
 
         if 'error' in recognized_song:
-            logging.getLogger('logstash-logger').error('gracenote: %s', recognized_song['error'])
+            self.log().error('gracenote: %s', recognized_song['error'])
             return
 
         self.extra_log_args['gracenote'] = recognized_song
@@ -85,7 +89,7 @@ class UploadHandler(BaseHandler):
                 metadata['acrcloud'] = yield self.recognize_sample_with_acrcloud(sample_path)
 
         except Exception:
-            logging.getLogger('logstash-logger').exception('recognize_sample')
+            self.log().exception('recognize_sample')
 
         metadata = {k: v for k, v in metadata.iteritems() if v is not None}
 
@@ -108,14 +112,12 @@ class UploadHandler(BaseHandler):
         """
 
         if self.is_fresh(latest_sample) and is_recognized(latest_sample):
-            msg = 'latest sample is fresh and recognized'
-            logging.getLogger('logstash-logger').info(msg)
-
+            self.log().info('latest sample is fresh and recognized')
             return True
 
     def is_same_song(self, latest_sample, metadata):
         """
-        Checks if current sample is a duplicate of latest sample 
+        Checks if current sample is a duplicate of latest sample
         """
 
         if is_recognized(latest_sample) and 'recognized_song' in metadata:
@@ -123,8 +125,7 @@ class UploadHandler(BaseHandler):
             current_song = metadata['recognized_song']
 
             if is_same_song(latest_song, current_song):
-                msg = 'ignoring current sample as it is recognized as the latest sample'
-                logging.getLogger('logstash-logger').info(msg)
+                self.log().info('ignoring current sample as it is recognized as the latest sample')
                 return True
 
     def should_replace_latest_with_current(self, latest_sample, metadata):
@@ -145,9 +146,7 @@ class UploadHandler(BaseHandler):
         """
 
         if self.is_fresh(latest_sample) and 'recognized_song' not in metadata:
-            msg = 'latest sample still fresh and current sample unrecognized, ignoring'
-            logging.getLogger('logstash-logger').info(msg)
-
+            self.log().info('latest sample still fresh and current sample unrecognized, ignoring')
             return True
         
     @coroutine
@@ -202,9 +201,8 @@ class UploadHandler(BaseHandler):
             open(metadata_path, 'w').write(json.dumps(full_metadata))
 
             if replace_latest:
-                msg = 'latest sample still fresh but unrecognized, replacing with recognized'
-                logging.getLogger('logstash-logger').info(msg)
+                self.log().info('latest sample still fresh but unrecognized, replacing with recognized')
                 self.settings['samples'].replace_latest(sample_id, boxid)
             else:
-                logging.getLogger('logstash-logger').info('adding new sample')
+                self.log().info('adding new sample')
                 self.settings['samples'].add(sample_id, boxid)
