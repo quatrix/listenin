@@ -168,7 +168,7 @@ class ListenIn(object):
 @click.command()
 @click.option('--boxid', required=True, help='Unique id for box')
 @click.option('--duration', default=20, help='Duration of each sample')
-@click.option('--interval', default=240, help='How often to take a sample')
+@click.option('--interval', default=60, help='How often to take a sample')
 @click.option('--retrytime', default=10, help='How much seconds to wait before retrying on failure')
 def main(boxid, duration, interval, retrytime):
     l = ListenIn(boxid, duration, interval, retrytime)
