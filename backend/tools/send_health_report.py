@@ -20,6 +20,8 @@ _mailgun = {
 
 _ignore_boxes = {'bootleg'}
 
+CLOSED = object()
+
 _hours = {
     'radio': {
         '_tz': 'Israel',
@@ -45,13 +47,13 @@ _hours = {
     'annaloulou': {
         '_tz': 'Israel',
         '_default': (21, 04),
-        'Sunday': 'Closed',
+        'Sunday': CLOSED,
     },
 
     'limalima': {
         '_tz': 'Israel',
         '_default': (23, 05),
-        'Sunday': 'Closed',
+        'Sunday': CLOSED,
     },
 
     'rothschild12': {
@@ -73,6 +75,10 @@ _hours = {
 }
 
 
+def get_hours(td):
+    return td.seconds//3600
+
+
 def send_report(subject, html, recipient):
     request_url = 'https://api.mailgun.net/v2/{0}/messages'.format(_mailgun['sandbox'])
     request = requests.post(request_url, auth=('api', _mailgun['key']), data={
@@ -92,7 +98,7 @@ def _get_closing_hour(venue):
         day_name = calendar.day_name[day.weekday()]
         hours = _hours[venue].get(day_name, _hours[venue]['_default'])
 
-        if hours == 'Closed':
+        if hours == CLOSED:
             continue
 
         if hours[0] > hours[1]:
@@ -171,6 +177,9 @@ def main(recp, no_send):
             last_upload_delta = datetime.datetime.now(tz.tzutc()) - parser.parse(box['last_upload'])
 
             if last_upload_delta.days:
+                if get_hours(last_upload_delta) > 12:
+                    last_upload_delta += datetime.timedelta(days=1)
+
                 msg = 'was {}'.format(humanize.naturaltime(last_upload_delta))
             else:
                 msg = 'at {} (expected: {})'.format(
