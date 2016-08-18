@@ -18,8 +18,10 @@ class BaseHandler(RequestHandler):
         if latlng is None:
             latlng = self.request.headers.get('X-LatLng')
 
-        if latlng is not None:
+        try:
             return tuple(map(float, latlng.split(',')))
+        except Exception:
+            return
 
     def on_finish(self):
         status_code = self.get_status()
