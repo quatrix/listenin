@@ -32,12 +32,14 @@ class UploadHandler(BaseHandler):
         res = json.loads(res)
 
         if 'metadata' not in res:
-            raise Return(None)
+            self.log().error('acrcloud could not recognize sample')
+            return
 
         raise Return(res['metadata']['music'][0])
 
     @coroutine
     def recognize_sample_with_acrcloud(self, sample_path):
+        self.log().info('trying to recognize with acrcloud')
         recognized_song = yield self._recognize_sample_with_acrcloud(sample_path)
 
         if recognized_song:
