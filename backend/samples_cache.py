@@ -3,6 +3,7 @@ Samples cache
 """
 
 from collections import defaultdict
+import json
 import os
 
 from utils import unix_time_to_readable_date, number_part_of_sample, get_metadata_from_json
@@ -37,20 +38,24 @@ class SamplesCache(object):
         except (KeyError, IndexError):
             return None
 
-    def add(self, sample, club):
+    def add(self, sample, metadata, club):
         """
         Insert sample into club samples while keeping samples size n_samples
         """
+
+        self._write_metadata(sample, metadata, club)
 
         if len(self._samples[club]) == self.n_samples:
             self._samples[club].pop()
 
         self._samples[club].insert(0, self._enrich_sample(sample, club))
 
-    def replace_latest(self, sample, club):
+    def replace_latest(self, sample, metadata, club):
         """
         Replaces last sample with new sample
         """
+
+        self._write_metadata(sample, metadata, club)
 
         os.unlink(self._get_json_path(club, self._samples[club][0]['_created']))
         self._samples[club][0] = self._enrich_sample(sample, club)
@@ -75,6 +80,9 @@ class SamplesCache(object):
 
     def _enrich_samples(self, samples, club):
         return [self._enrich_sample(sample, club) for sample in samples]
+
+    def _write_metadata(self, sample, metadata, club):
+        open(self._get_json_path(club, sample), 'w').write(json.dumps(metadata))
 
     def _get_json_path(self, club, sample):
         return os.path.join(self.samples_root, club, '{}.json'.format(sample))

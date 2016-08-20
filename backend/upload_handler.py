@@ -167,7 +167,6 @@ class UploadHandler(BaseHandler):
         samples_dir = os.path.join(self.settings['samples_root'], boxid)
         sample_id = int(time.time())
         sample_path = os.path.join(samples_dir, '{}.mp3'.format(sample_id))
-        metadata_path = os.path.join(samples_dir, '{}.json'.format(sample_id))
         latest_sample = self.settings['samples'].latest(boxid)
 
         self.extra_log_args = {
@@ -198,11 +197,10 @@ class UploadHandler(BaseHandler):
 
             os.chmod(tmp_file.name, 0644)
             os.rename(tmp_file.name, sample_path)
-            open(metadata_path, 'w').write(json.dumps(full_metadata))
 
             if replace_latest:
                 self.log().info('latest sample still fresh but unrecognized, replacing with recognized')
-                self.settings['samples'].replace_latest(sample_id, boxid)
+                self.settings['samples'].replace_latest(sample_id, full_metadata, boxid)
             else:
                 self.log().info('adding new sample')
-                self.settings['samples'].add(sample_id, boxid)
+                self.settings['samples'].add(sample_id, full_metadata, boxid)
