@@ -104,7 +104,7 @@ class ClubsHandler(BaseHandler):
         )
 
         return {
-            size: '{}/{}.png'.format(prefix, size)
+            size: '{}/{}.png?version={}'.format(prefix, size, self.settings['images_version'])
             for size in sizes
         }
 
