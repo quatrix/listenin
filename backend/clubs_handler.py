@@ -10,6 +10,19 @@ from geopy import distance
 from base_handler import BaseHandler
 
 
+class TAGS(object):
+    """
+    Clubs tag constants
+    """
+
+    DANCE_FLOOR = "Dancing"
+    TABLES = "Tables"
+    LGBT = "LGBT"
+    SMOKERS = "Smoking"
+    FOOD = "Food"
+    SMALL = "Small"
+    LARGE = "Large"
+
 
 class ClubsHandler(BaseHandler):
     _genres = TTLDict(default_ttl=60)
@@ -18,7 +31,7 @@ class ClubsHandler(BaseHandler):
         'radio': {
             'name': 'Radio EPGB',
             'details': 'An underground dance-bar, live performances during weekdays and parties on the weekend, considers itself home of the Tel-aviv indie scene.',
-            'tags': ['D', 'S', 'SM'],
+            'tags': [TAGS.DANCE_FLOOR, TAGS.SMALL, TAGS.SMOKERS],
             'address': '7 Shadal St. Tel Aviv',
             'phone': '+972-3-5603636',
             'location': {'lat': 32.06303301410757, 'lng': 34.775075912475586},
@@ -28,7 +41,7 @@ class ClubsHandler(BaseHandler):
         'pasaz' : {
             'name': 'The Pasáž',
             'details': 'An underground dance-bar that offers food and live performances along with art displays and special themed parties.',
-            'tags': ['D', 'S', 'F', 'SM'],
+            'tags': [TAGS.DANCE_FLOOR, TAGS.SMOKERS, TAGS.FOOD, TAGS.SMALL],
             'address': '94 Allenby St. Tel Aviv',
             'phone': '+972-77-3323118',
             'location': {'lat': 32.0663031, 'lng': 34.7719147},
@@ -38,7 +51,7 @@ class ClubsHandler(BaseHandler):
         'annaloulou' : {
             'name': 'Anna Loulou',
             'details': 'Anna Loulou',
-            'tags': [],
+            'tags': [TAGS.SMOKERS, TAGS.SMALL],
             'address': 'HaPninim 2, Tel Aviv-Yafo, 6803001, Israel',
             'phone': '+972-3-716-8221',
             'location': {'lat': 32.0534479, 'lng': 34.7538248},
@@ -48,7 +61,7 @@ class ClubsHandler(BaseHandler):
         'limalima' : {
             'name': 'Lima Lima',
             'details': 'Lima Lima',
-            'tags': [],
+            'tags': [TAGS.SMALL, TAGS.DANCE_FLOOR],
             'address': 'Lilienblum St 42, Tel Aviv-Yafo',
             'phone': '+972-3-560-0924',
             'location': {'lat': 32.0623976, 'lng': 34.7699819},
@@ -58,7 +71,7 @@ class ClubsHandler(BaseHandler):
         'rothschild12' : {
             'name': 'Rothschild 12',
             'details': 'Rothschild 12',
-            'tags': [],
+            'tags': [TAGS.SMOKERS, TAGS.SMALL, TAGS.TABLES],
             'address': 'Rothschild Blvd 12, Tel Aviv-Yafo',
             'phone': '+972-3-510-6430',
             'location': {'lat': 32.062718, 'lng': 34.7704438},
@@ -68,7 +81,7 @@ class ClubsHandler(BaseHandler):
         'hostel51' : {
             'name': 'Hostel 51',
             'details': 'A restaurant / bar that also functions as a tourist hostel, live dj and a versatile menu.',
-            'tags': ['T', 'S', 'F', 'SM'],
+            'tags': [TAGS.TABLES, TAGS.SMOKERS, TAGS.SMALL, TAGS.FOOD],
             'address': 'Yehuda ha-Levi St 51, Tel Aviv-Yafo',
             'phone': '+972-3-527-7306',
             'location': {'lat': 32.0623872, 'lng': 34.7740594},
@@ -78,7 +91,7 @@ class ClubsHandler(BaseHandler):
         'kulialma' : {
             'name': 'Kuli Alma',
             'details': 'A dance-bar that aims to be an open-space of music and culture and offers,live music, great parties and visual art displays.',
-            'tags': ['D', 'S', 'F', 'LA'],
+            'tags': [TAGS.FOOD, TAGS.SMOKERS, TAGS.DANCE_FLOOR, TAGS.LARGE],
             'address': 'Mikveh Israel St 10, Tel Aviv-Yafo',
             'phone': '+972-3-656-5155',
             'location': {'lat': 32.0622372, 'lng': 34.774789},
@@ -88,7 +101,7 @@ class ClubsHandler(BaseHandler):
         'bootleg' : {
             'name': 'Bootleg',
             'details': 'Bootleg',
-            'tags': [],
+            'tags': [TAGS.DANCE_FLOOR, TAGS.LARGE],
             'address': 'King George St 48, Tel Aviv-Yafo',
             'phone': '+972-52-805-4448',
             'location': {'lat': 32.0743404, 'lng': 34.7759128},
