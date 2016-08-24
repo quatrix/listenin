@@ -81,7 +81,7 @@ def main(port, samples_root, base_url, n_samples, sample_interval, acr_key, acr_
         es=es,
         samples=samples_cache,
         gn_config=gn_config,
-        images_version=5,
+        images_version=6,
     )
 
     enable_pretty_logging()
