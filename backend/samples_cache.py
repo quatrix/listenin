@@ -74,7 +74,7 @@ class SamplesCache(object):
         return {
             '_created': sample,
             'date': unix_time_to_readable_date(sample),
-            'link': '{}/uploads/{}/{}.mp3'.format(self.base_url, club, sample),
+            'link': os.path.join(self.base_url, 'uploads', club, '{}.mp3'.format(sample)),
             'metadata': get_metadata_from_json(self._get_json_path(club, sample)),
         }
 
