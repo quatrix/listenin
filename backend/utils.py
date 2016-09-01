@@ -68,8 +68,9 @@ def normalize_metadata(metadata):
     if 'gracenote' in metadata:
         metadata['recognized_song'] = normalize_gracenote_response(metadata['gracenote'])
         del metadata['gracenote'] # FIXME this is while we're using two recognizers
-    elif 'recognized_song' in metadata:
-        metadata['recognized_song'] = normalize_acrcloud_response(metadata['recognized_song'])
+    elif 'acrcloud' in metadata:
+        metadata['recognized_song'] = normalize_acrcloud_response(metadata['acrcloud'])
+        del metadata['acrcloud'] # FIXME this is while we're using two recognizers
 
     return metadata
 
