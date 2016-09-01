@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import copy
+import os
 from operator import itemgetter
 
 from functools32 import lru_cache
@@ -118,15 +119,18 @@ class ClubsHandler(BaseHandler):
 
         return int(distance.vincenty(location, client_latlng).meters)
 
+    def get_images_path(self):
+        return os.path.join(self.settings['base_url'], 'images')
+
+    def get_versioned_image(self, image):
+        return '{}?version={}'.format(image, self.settings['images_version'])
+
     def get_logo(self, club):
         sizes = 'hdpi', 'mdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi'
-        prefix = '{}/images/{}'.format(
-            self.settings['base_url'],
-            club
-        )
+        prefix = os.path.join(self.get_images_path(), club)
 
         return {
-            size: '{}/{}.png?version={}'.format(prefix, size, self.settings['images_version'])
+            size: os.path.join(prefix, self.get_versioned_image('{}.png'.format(size)))
             for size in sizes
         }
 
@@ -151,11 +155,12 @@ class ClubsHandler(BaseHandler):
             club = copy.deepcopy(self._clubs[club_id])
             club['logo'] = self.get_logo(club_id)
             club['samples'] = samples
-            club['cover'] = '{}/images/{}/cover.jpg?version={}'.format(
-                self.settings['base_url'],
+            club['cover'] = os.path.join(
+                self.get_images_path(),    
                 club_id,
-                self.settings['images_version'],
+                self.get_versioned_image('cover.jpg'),
             )
+
             club['distance'] = self.get_distance_from_client(club['location__'])
             clubs.append(club)
 
