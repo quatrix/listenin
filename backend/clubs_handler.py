@@ -109,6 +109,16 @@ class ClubsHandler(BaseHandler):
             'location__': (32.0743404,34.7759128),
             'wifi': 'whoknows',
         },
+        'tahat' : {
+            'name': 'Tahat',
+            'details': 'Tahat',
+            'tags': [TAGS.DANCE_FLOOR, TAGS.LARGE],
+            'address': 'Ibn Gavirol St 106, Tel Aviv-Yafo',
+            'phone': '+972-52-666-6666',
+            'location': {'lat': 32.08418, 'lng': 34.7794211},
+            'location__': (32.08418,34.7794211),
+            'wifi': 'whoknows',
+        },
     }
 
     def get_distance_from_client(self, location):
