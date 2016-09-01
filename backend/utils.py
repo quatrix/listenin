@@ -36,9 +36,14 @@ def normalize_acrcloud_response(r):
     }
 
 def normalize_gracenote_response(r):
+    try:
+        genres = [r['genre']['2']['TEXT']]
+    except KeyError:
+        genres = []
+
     return {
         'album': r['album_title'],
-        'genres': [],
+        'genres': genres,
         'title': r['tracks'][0]['track_title'],
         'artists': [r['album_artist_name']],
         '_recognizer': 'gracenote',
