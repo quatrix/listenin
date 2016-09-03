@@ -18,7 +18,7 @@ _mailgun = {
     'sandbox': 'mg.listenin.io',
 }
 
-_ignore_boxes = {'bootleg'}
+_ignore_boxes = {'bootleg', 'tahat'}
 
 CLOSED = object()
 
@@ -67,6 +67,13 @@ _hours = {
     },
 
     'bootleg': {
+        '_tz': 'Israel',
+        '_default': (23, 04),
+        'Thursday': (23, 06),
+        'Friday': (23, 06),
+    },
+
+    'tahat': {
         '_tz': 'Israel',
         '_default': (23, 04),
         'Thursday': (23, 06),
@@ -162,7 +169,11 @@ def main(recp, no_send):
         if box_name in _ignore_boxes:
             continue
 
-        expected = _get_closing_hour(box_name)
+        try:
+            expected = _get_closing_hour(box_name)
+        except KeyError:
+            report.append((datetime.timedelta(days=999), '* {} - don\'t know closing hour'.format(box_name)))
+            continue
 
         if box['last_upload'] is None:
             report.append((datetime.timedelta(days=999), '* {} - no samples found'.format(box_name)))
