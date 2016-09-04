@@ -25,12 +25,12 @@ def number_part_of_sample(sample):
 def normalize_acrcloud_response(r):
     def _get_genres():
         if 'genres' in r:
-            return list(itertools.chain([g['name'].split('/') for g in r['genres']]))
+            return [g['name'].split('/') for g in r['genres']]
         return []
 
     return {
         'album': r['album']['name'],
-        'genres': _get_genres(),
+        'genres': list(set(itertools.chain(*_get_genres()))),
         'title': r['title'],
         'artists': [a['name'] for a in r['artists']],
         '_recognizer': 'acrcloud',
@@ -38,7 +38,7 @@ def normalize_acrcloud_response(r):
 
 def normalize_gracenote_response(r):
     try:
-        genres = r['genre']['2']['TEXT'].split('/')
+        genres = list(set(r['genre']['2']['TEXT'].split('/')))
     except KeyError:
         genres = []
 
