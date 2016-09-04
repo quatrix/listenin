@@ -37,7 +37,7 @@ def normalize_acrcloud_response(r):
 
 def normalize_gracenote_response(r):
     try:
-        genres = [r['genre']['2']['TEXT']]
+        genres = r['genre']['2']['TEXT'].split('/')
     except KeyError:
         genres = []
 
