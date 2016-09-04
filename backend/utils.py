@@ -4,6 +4,7 @@ import datetime
 import json
 import logging
 import copy
+import itertools
 
 import pytz
 
@@ -24,7 +25,7 @@ def number_part_of_sample(sample):
 def normalize_acrcloud_response(r):
     def _get_genres():
         if 'genres' in r:
-            return [g['name'] for g in r['genres']]
+            return list(itertools.chain([g['name'].split('/') for g in r['genres']]))
         return []
 
     return {
