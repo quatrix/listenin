@@ -30,8 +30,9 @@ import click
 @click.option('--gn-client-id', required=True, help='Gracenote cliet id')
 @click.option('--gn-user-id', required=True, help='Gracenote user id')
 @click.option('--gn-license', required=True, help='Gracenote license file')
+@click.option('--images-version', required=True, help='Images version number')
 @click.option('--debug', default=False, help='Debug mode')
-def main(port, samples_root, base_url, n_samples, sample_interval, acr_key, acr_secret, es_host, gn_client_id, gn_user_id, gn_license, debug):
+def main(port, samples_root, base_url, n_samples, sample_interval, acr_key, acr_secret, es_host, gn_client_id, gn_user_id, gn_license, images_version, debug):
     logstash_handler = logstash.LogstashHandler('localhost', 5959, version=1)
 
     logstash_logger = logging.getLogger('logstash-logger')
@@ -81,7 +82,7 @@ def main(port, samples_root, base_url, n_samples, sample_interval, acr_key, acr_
         es=es,
         samples=samples_cache,
         gn_config=gn_config,
-        images_version=6,
+        images_version=images_version,
     )
 
     enable_pretty_logging()
