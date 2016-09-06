@@ -31,7 +31,7 @@ class ClubsHandler(BaseHandler):
     _clubs = {
         'radio': {
             'name': 'Radio EPGB',
-            'details': 'An underground dance-bar, live performances during weekdays and parties on the weekend, considers itself home of the Tel-aviv indie scene.',
+            'details': 'Literally an underground dance-bar,  live performances during weekdays and parties on the weekend, considers itself home of the Tel-aviv indie scene.',
             'tags': [TAGS.DANCE_FLOOR, TAGS.SMALL, TAGS.SMOKERS],
             'address': '7 Shadal St. Tel Aviv',
             'phone': '+972-3-5603636',
@@ -51,7 +51,7 @@ class ClubsHandler(BaseHandler):
         },
         'annaloulou' : {
             'name': 'Anna Loulou',
-            'details': 'Anna Loulou',
+            'details': '"Describing itself as a cross between underground bar and cultural center, this gay- and smoker-friendly hipster bar is perhaps the only joint in town where Arab and Jewish locals party together." (Lonely Planet)',
             'tags': [TAGS.SMOKERS, TAGS.SMALL],
             'address': 'HaPninim 2, Tel Aviv-Yafo, 6803001, Israel',
             'phone': '+972-3-716-8221',
@@ -61,7 +61,7 @@ class ClubsHandler(BaseHandler):
         },
         'limalima' : {
             'name': 'Lima Lima',
-            'details': 'Lima Lima',
+            'details': '"The Lima Lima Bar hosts some of Tel Aviv’s best parties. Known for its epic Monday Lima Day gay-friendly Hip Hop nights, Thursday Old School Hip Hop parties, and Friday’s Mainstream Madness line." (Secrettelaviv.com)',
             'tags': [TAGS.SMALL, TAGS.DANCE_FLOOR],
             'address': 'Lilienblum St 42, Tel Aviv-Yafo',
             'phone': '+972-3-560-0924',
@@ -71,7 +71,8 @@ class ClubsHandler(BaseHandler):
         },
         'rothschild12' : {
             'name': 'Rothschild 12',
-            'details': 'Rothschild 12',
+            'details': '"Equally good for lunch, afternoon coffee, aperitifs or late-night drinks. The soundtrack comes courtesy of jazz disks during the day and live bands and DJs at night." (Lonely planet)',
+
             'tags': [TAGS.SMOKERS, TAGS.SMALL, TAGS.TABLES],
             'address': 'Rothschild Blvd 12, Tel Aviv-Yafo',
             'phone': '+972-3-510-6430',
@@ -91,7 +92,7 @@ class ClubsHandler(BaseHandler):
         },
         'kulialma' : {
             'name': 'Kuli Alma',
-            'details': 'A dance-bar that aims to be an open-space of music and culture and offers,live music, great parties and visual art displays.',
+            'details': 'A dance-bar that aims to be an open-space of music and culture and offers live music, great parties and visual art displays.',
             'tags': [TAGS.FOOD, TAGS.SMOKERS, TAGS.DANCE_FLOOR, TAGS.LARGE],
             'address': 'Mikveh Israel St 10, Tel Aviv-Yafo',
             'phone': '+972-3-656-5155',
