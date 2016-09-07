@@ -102,7 +102,7 @@ class ClubsHandler(BaseHandler):
         },
         'bootleg' : {
             'name': 'Bootleg',
-            'details': 'Bootleg',
+            'details': '"The Bootleg holds a selection of lines on Thursdays and Fridays that attract some extreme clubbers alongside unknowing new visitors. Playing cutting edge music that goes from Progressive Trance to Techno and beyond." (telavivguide.net)',
             'tags': [TAGS.DANCE_FLOOR, TAGS.LARGE],
             'address': 'King George St 48, Tel Aviv-Yafo',
             'phone': '+972-52-805-4448',
@@ -112,7 +112,7 @@ class ClubsHandler(BaseHandler):
         },
         'tahat' : {
             'name': 'Tahat',
-            'details': 'Tahat',
+            'details': '"This latest addition to the club scene draws crowds in a relaxed atmosphere. People come to dance on a rather explosive mix, which mixes rave, hip-hop and techno" (petitfute.com)',
             'tags': [TAGS.DANCE_FLOOR, TAGS.LARGE],
             'address': 'Ibn Gavirol St 106, Tel Aviv-Yafo',
             'phone': '+972-52-666-6666',
