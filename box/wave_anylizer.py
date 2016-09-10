@@ -11,9 +11,9 @@ endolith, if you're reading this, many thanks!
 
 from __future__ import division
 from scikits.audiolab import Sndfile
-from numpy import absolute, argmax, log
+from numpy import absolute, argmax, log, mean, copy, arange
 from numpy.fft import rfft
-from scipy.signal import kaiser
+from scipy.signal import kaiser, decimate
 import sys
 
 
@@ -28,6 +28,34 @@ def load(filename):
     sample_rate = wave_file.samplerate
     return signal, sample_rate, wave_file.nframes
  
+
+def freq_from_hps(signal, fs):
+    """Estimate frequency using harmonic product spectrum
+    
+    Low frequency noise piles up and overwhelms the desired peaks
+    """
+    N = len(signal)
+    signal -= mean(signal) # Remove DC offset
+    
+    # Compute Fourier transform of windowed signal
+    windowed = signal * kaiser(N, 100)
+    
+    # Get spectrum
+    X = log(abs(rfft(windowed)))
+    
+    # Downsample sum logs of spectra instead of multiplying
+    hps = copy(X)
+    for h in arange(2, 9): # TODO: choose a smarter upper limit
+        dec = decimate(X, h)
+        hps[:len(dec)] += dec
+    
+    # Find the peak and interpolate to get a more accurate peak
+    i_peak = argmax(hps[:len(dec)])
+    i_interp = parabolic(hps, i_peak)[0]
+    
+    # Convert to equivalent frequency
+    return fs * i_interp / N # Hz
+
 
 def freq_from_fft(signal, fs):
     """Estimate frequency from peak of FFT
@@ -80,8 +108,13 @@ def parabolic(f, x):
 
 
 def is_noise(signal, sample_rate):
-    freq = freq_from_fft(signal, sample_rate)
-    return 50.6 > freq > 49.4 or freq < 4
+    hps_freq = freq_from_hps(signal, sample_rate)
+    fft_freq = freq_from_fft(signal, sample_rate)
+
+    fft_detected_noise = 50.6 > fft_freq > 49.4 or fft_freq < 4
+    hps_detected_noise = 50.6 > hps_freq > 49.4 or hps_freq < 4
+
+    return fft_detected_noise or hps_detected_noise
 
 
 def is_silence(signal):
