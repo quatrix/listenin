@@ -31,7 +31,7 @@ class ClubsHandler(BaseHandler):
     _clubs = {
         'radio': {
             'name': 'Radio EPGB',
-            'details': 'Literally an underground dance-bar,  live performances during weekdays and parties on the weekend, considers itself home of the Tel-aviv indie scene.',
+            'details': 'Literally an underground dance-bar, live performances during weekdays and parties on the weekend, considers itself home of the Tel-aviv indie scene.',
             'tags': [TAGS.DANCE_FLOOR, TAGS.SMALL, TAGS.SMOKERS],
             'address': '7 Shadal St. Tel Aviv',
             'phone': '+972-3-5603636',
@@ -51,7 +51,7 @@ class ClubsHandler(BaseHandler):
         },
         'annaloulou' : {
             'name': 'Anna Loulou',
-            'details': '"Describing itself as a cross between underground bar and cultural center, this gay- and smoker-friendly hipster bar is perhaps the only joint in town where Arab and Jewish locals party together." (Lonely Planet)',
+            'details': '"Describing itself as a cross between underground bar and cultural center, this gay- and smoker-friendly hipster bar is perhaps the only joint in town where Arab and Jewish locals party together." - Lonely Planet',
             'tags': [TAGS.SMOKERS, TAGS.SMALL],
             'address': 'HaPninim 2, Tel Aviv-Yafo, 6803001, Israel',
             'phone': '+972-3-716-8221',
@@ -61,7 +61,7 @@ class ClubsHandler(BaseHandler):
         },
         'limalima' : {
             'name': 'Lima Lima',
-            'details': '"The Lima Lima Bar hosts some of Tel Aviv’s best parties. Known for its epic Monday Lima Day gay-friendly Hip Hop nights, Thursday Old School Hip Hop parties, and Friday’s Mainstream Madness line." (Secrettelaviv.com)',
+            'details': '"The Lima Lima Bar hosts some of Tel Aviv’s best parties. Known for its epic Monday Lima Day gay-friendly Hip Hop nights, Thursday Old School Hip Hop parties, and Friday’s Mainstream Madness line." - secrettelaviv.com',
             'tags': [TAGS.SMALL, TAGS.DANCE_FLOOR],
             'address': 'Lilienblum St 42, Tel Aviv-Yafo',
             'phone': '+972-3-560-0924',
@@ -71,7 +71,7 @@ class ClubsHandler(BaseHandler):
         },
         'rothschild12' : {
             'name': 'Rothschild 12',
-            'details': '"Equally good for lunch, afternoon coffee, aperitifs or late-night drinks. The soundtrack comes courtesy of jazz disks during the day and live bands and DJs at night." (Lonely planet)',
+            'details': '"Equally good for lunch, afternoon coffee, aperitifs or late-night drinks. The soundtrack comes courtesy of jazz disks during the day and live bands and DJs at night." - Lonely planet',
 
             'tags': [TAGS.SMOKERS, TAGS.SMALL, TAGS.TABLES],
             'address': 'Rothschild Blvd 12, Tel Aviv-Yafo',
@@ -112,12 +112,22 @@ class ClubsHandler(BaseHandler):
         },
         'tahat' : {
             'name': 'Tahat',
-            'details': '"This latest addition to the club scene draws crowds in a relaxed atmosphere. People come to dance on a rather explosive mix, which mixes rave, hip-hop and techno" (petitfute.com)',
+            'details': '"This latest addition to the club scene draws crowds in a relaxed atmosphere. People come to dance on a rather explosive mix, which mixes rave, hip-hop and techno" - petitfute.com',
             'tags': [TAGS.DANCE_FLOOR, TAGS.LARGE],
             'address': 'Ibn Gavirol St 106, Tel Aviv-Yafo',
             'phone': '+972-52-666-6666',
             'location': {'lat': 32.08418, 'lng': 34.7794211},
             'location__': (32.08418,34.7794211),
+            'wifi': 'whoknows',
+        },
+        'abraxas' : {
+            'name': 'Abraxas',
+            'details': '"Abraxas is the place to go for some downright quality music, with each night seeing a different line of music, accompanied by a high quality bar with a rich menu" - israeltripplanner.com',
+            'tags': [TAGS.SMALL, TAGS.DANCE_FLOOR, TAGS.SMOKERS],
+            'address': 'Lilienblum St 40, Tel Aviv-Yafo',
+            'phone': '+972-3-510-4435',
+            'location': {'lat': 32.0622576, 'lng': 34.7720148},
+            'location__': (32.0622576,34.7720148),
             'wifi': 'whoknows',
         },
     }
