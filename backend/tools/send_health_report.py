@@ -79,6 +79,21 @@ _hours = {
         'Thursday': (23, 06),
         'Friday': (23, 06),
     },
+
+    'abraxas': {
+        '_tz': 'Israel',
+        '_default': (23, 04),
+        'Monday': CLOSED,
+        'Thursday': (23, 06),
+        'Friday': (23, 06),
+    },
+
+    'sputnik': {
+        '_tz': 'Israel',
+        '_default': (23, 04),
+        'Thursday': (23, 06),
+        'Friday': (23, 06),
+    },
 }
 
 
