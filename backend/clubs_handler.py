@@ -130,6 +130,16 @@ class ClubsHandler(BaseHandler):
             'location__': (32.0622576,34.7720148),
             'wifi': 'whoknows',
         },
+        'sputnik' : {
+            'name': 'Sputnik',
+            'details': '"It’s the one place where you will find an outstanding content, underground music and culture futuristic elements of design mixed with retro 70’s and 80’s vibes." - mindspace.me',
+            'tags': [TAGS.DANCE_FLOOR],
+            'address': 'Allenby St 122, Tel Aviv-Yafo',
+            'phone': '+972-52-642-6532',
+            'location': {'lat': 32.0628612, 'lng': 34.7730134},
+            'location__': (32.0628612,34.7730134),
+            'wifi': 'whoknows',
+        },
     }
 
     def get_distance_from_client(self, location):
