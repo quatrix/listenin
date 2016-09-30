@@ -36,17 +36,16 @@ def main(port, samples_root, base_url, n_samples, sample_interval, acr_key, acr_
 
     logstash_logger = logging.getLogger('logstash-logger')
     logstash_logger.setLevel(logging.INFO)
+    logstash_logger.addHandler(logstash_handler)
 
-    if debug:
-        logstash_logger.addHandler(logging.StreamHandler())
-    else:
-        logstash_logger.addHandler(logstash_handler)
+    enable_pretty_logging()
+    logstash_logger.info('Starting Server')
 
     acr_config = {
         'host':'eu-west-1.api.acrcloud.com',
         'access_key': acr_key,
         'access_secret': acr_secret,
-        'debug':False,
+        'debug': False,
         'timeout':10,
     }
 
@@ -71,7 +70,7 @@ def main(port, samples_root, base_url, n_samples, sample_interval, acr_key, acr_
             (r"/spy", SpyHandler),
             (r"/health", HealthHandler),
         ],
-        debug=True,
+        debug=debug,
         base_url=base_url,
         sample_interval=sample_interval,
         samples_root=samples_root,
@@ -80,8 +79,6 @@ def main(port, samples_root, base_url, n_samples, sample_interval, acr_key, acr_
         gn_config=gn_config,
         images_version=images_version,
     )
-
-    enable_pretty_logging()
 
     app.listen(port, xheaders=True)
     IOLoop.current().start()
