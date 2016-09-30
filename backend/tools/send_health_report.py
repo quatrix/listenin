@@ -18,7 +18,7 @@ _mailgun = {
     'sandbox': 'mg.listenin.io',
 }
 
-_ignore_boxes = {'bootleg', 'tahat'}
+_ignore_boxes = {'bootleg'}
 
 CLOSED = object()
 
@@ -76,6 +76,10 @@ _hours = {
     'tahat': {
         '_tz': 'Israel',
         '_default': (23, 04),
+        'Sunday': CLOSED,
+        'Monday': CLOSED,
+        'Tuesday': CLOSED,
+        'Wednesday': CLOSED,
         'Thursday': (23, 06),
         'Friday': (23, 06),
     },
