@@ -5,7 +5,6 @@ from upload_handler import UploadHandler
 from clubs_handler import ClubsHandler
 from spy_handler import SpyHandler
 from health_handler import HealthHandler
-from es import ES
 from samples_cache import SamplesCache
 
 try:
@@ -59,8 +58,6 @@ def main(port, samples_root, base_url, n_samples, sample_interval, acr_key, acr_
 
     recognizer = ACRCloudRecognizer(acr_config)
 
-    es = ES(es_host)
-
     samples_cache = SamplesCache(
         samples_root=samples_root,
         n_samples=n_samples,
@@ -79,7 +76,6 @@ def main(port, samples_root, base_url, n_samples, sample_interval, acr_key, acr_
         sample_interval=sample_interval,
         samples_root=samples_root,
         recognizer=recognizer,
-        es=es,
         samples=samples_cache,
         gn_config=gn_config,
         images_version=images_version,
