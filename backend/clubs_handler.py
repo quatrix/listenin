@@ -159,6 +159,9 @@ class ClubsHandler(BaseHandler):
         res = {}
 
         for club, samples in self.settings['samples'].all().iteritems():
+            if club not in self._clubs:
+                continue
+
             res[club] = self._clubs[club]
             res[club]['logo'] = self.get_logo(club)
             res[club]['samples'] = samples
@@ -170,7 +173,7 @@ class ClubsHandler(BaseHandler):
         clubs = []
 
         for club_id, samples in self.settings['samples'].all().iteritems():
-            if not samples:
+            if not samples or club_id not in self._clubs:
                 continue
 
             club = copy.deepcopy(self._clubs[club_id])
