@@ -90,6 +90,16 @@ class ClubsHandler(BaseHandler):
             'location__': (32.0623872, 34.7740594),
             'wifi': 'whoknows',
         },
+        'kulialma' : {
+            'name': 'Kuli Alma',
+            'details': 'A dance-bar that aims to be an open-space of music and culture and offers live music, great parties and visual art displays.',
+            'tags': [TAGS.FOOD, TAGS.SMOKERS, TAGS.DANCE_FLOOR, TAGS.LARGE],
+            'address': 'Mikveh Israel St 10, Tel Aviv-Yafo',
+            'phone': '+972-3-656-5155',
+            'location': {'lat': 32.0622372, 'lng': 34.774789},
+            'location__': (32.0622372,34.774789),
+            'wifi': 'whoknows',
+        },
         'bootleg' : {
             'name': 'Bootleg',
             'details': '"The Bootleg holds a selection of lines on Thursdays and Fridays that attract some extreme clubbers alongside unknowing new visitors. Playing cutting edge music that goes from Progressive Trance to Techno and beyond." (telavivguide.net)',
