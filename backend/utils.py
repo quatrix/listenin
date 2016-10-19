@@ -85,4 +85,4 @@ def get_metadata_from_json(sample_metadata_path):
         return normalize_metadata(json.loads(open(sample_metadata_path).read()))
     except IOError:
         logging.exception('get_metadata')
-        return
+        return {}

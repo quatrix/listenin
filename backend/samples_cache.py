@@ -8,6 +8,10 @@ import os
 
 from utils import unix_time_to_readable_date, number_part_of_sample, get_metadata_from_json
 
+
+DONT_WANT_SAMPLE_RECOGNITION = {'sputnik'}
+
+
 class SamplesCache(object):
     """
     Samples cache
@@ -70,12 +74,18 @@ class SamplesCache(object):
         samples = [number_part_of_sample(sample) for sample in samples]
         return sorted(samples, reverse=True)[:self.n_samples]
 
+    def _get_metadata(self, sample, club):
+        if club in DONT_WANT_SAMPLE_RECOGNITION:
+            return {}
+
+        return get_metadata_from_json(self._get_json_path(club, sample))
+
     def _enrich_sample(self, sample, club):
         return {
             '_created': sample,
             'date': unix_time_to_readable_date(sample),
             'link': os.path.join(self.base_url, 'uploads', club, '{}.mp3'.format(sample)),
-            'metadata': get_metadata_from_json(self._get_json_path(club, sample)),
+            'metadata': self._get_metadata(sample, club),
         }
 
     def _enrich_samples(self, samples, club):
