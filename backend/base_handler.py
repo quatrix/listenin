@@ -2,8 +2,7 @@ from tornado.web import RequestHandler
 from chainmap import ChainMap
 import logging
 
-
-class BaseHandler(RequestHandler):
+class CORSHandler(RequestHandler):
     def set_default_headers(self):
         self.set_header("Access-Control-Allow-Origin", "*")
         self.set_header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
@@ -12,6 +11,7 @@ class BaseHandler(RequestHandler):
     def options(self, *args, **kwargs):
         self.finish()
 
+class BaseHandler(CORSHandler):
     def get_latlng(self):
         latlng = self.get_argument('latlng', None)
 

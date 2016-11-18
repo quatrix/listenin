@@ -6,6 +6,8 @@ from clubs_handler import ClubsHandler
 from spy_handler import SpyHandler
 from health_handler import HealthHandler
 from samples_cache import SamplesCache
+from clubs import Clubs
+from bo_handler import BOHandler 
 
 try:
     from acrcloud.recognizer import ACRCloudRecognizer
@@ -63,21 +65,26 @@ def main(port, samples_root, base_url, n_samples, sample_interval, acr_key, acr_
         base_url=base_url,
     )
 
+    clubs = Clubs(
+        samples=samples_cache,
+        base_url=base_url,
+        images_version=images_version,
+    )
+
     app = Application(
         [
             (r"/upload/(.+)/", UploadHandler),
             (r"/clubs", ClubsHandler),
+            (r"/bo/", BOHandler),
             (r"/spy", SpyHandler),
             (r"/health", HealthHandler),
         ],
         debug=debug,
-        base_url=base_url,
+        clubs=clubs,
         sample_interval=sample_interval,
         samples_root=samples_root,
         recognizer=recognizer,
-        samples=samples_cache,
         gn_config=gn_config,
-        images_version=images_version,
     )
 
     app.listen(port, xheaders=True)
