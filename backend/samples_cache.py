@@ -9,8 +9,6 @@ import os
 from utils import unix_time_to_readable_date, number_part_of_sample, get_metadata_from_json
 
 
-DONT_WANT_SAMPLE_RECOGNITION = {'sputnik'}
-
 
 class SamplesCache(object):
     """
@@ -54,6 +52,16 @@ class SamplesCache(object):
 
         self._samples[club].insert(0, self._enrich_sample(sample, club))
 
+    def toggle_hiddeness(self, club, sample):
+        metadata = json.loads(open(self._get_json_path(club, sample)).read())
+        metadata['hidden'] = not metadata.get('hidden', False)
+        self._write_metadata(sample, metadata, club)
+
+        for s in self._samples[club]:
+            if s['_created'] == sample:
+                s['metadata']['hidden'] = not s['metadata'].get('hidden', False)
+                break
+
     def replace_latest(self, sample, metadata, club):
         """
         Replaces last sample with new sample
@@ -75,9 +83,6 @@ class SamplesCache(object):
         return sorted(samples, reverse=True)[:self.n_samples]
 
     def _get_metadata(self, sample, club):
-        if club in DONT_WANT_SAMPLE_RECOGNITION:
-            return {}
-
         return get_metadata_from_json(self._get_json_path(club, sample))
 
     def _enrich_sample(self, sample, club):

@@ -16,8 +16,8 @@ class ClubsHandler(BaseHandler):
         clubs = self.settings['clubs'].all()
 
         for club in clubs:
-            club['distance'] = self.get_distance_from_client(club['location__'])
-            
+            club['distance'] = self.get_distance_from_client(club['location'])
+
         return sorted(clubs, key=itemgetter('distance'))
 
     def get(self):
