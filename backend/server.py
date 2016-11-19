@@ -8,6 +8,8 @@ from health_handler import HealthHandler
 from samples_cache import SamplesCache
 from clubs import Clubs
 from bo_handler import BOHandler 
+from bo_samples_handler import BOSamplesHandler
+from token_handler import TokenHandler
 
 try:
     from acrcloud.recognizer import ACRCloudRecognizer
@@ -32,8 +34,9 @@ import click
 @click.option('--gn-user-id', required=True, help='Gracenote user id')
 @click.option('--gn-license', required=True, help='Gracenote license file')
 @click.option('--images-version', required=True, help='Images version number')
+@click.option('--jwt-secret', required=True, help='Json Web Token secret')
 @click.option('--debug', default=False, help='Debug mode')
-def main(port, samples_root, base_url, n_samples, sample_interval, acr_key, acr_secret, es_host, gn_client_id, gn_user_id, gn_license, images_version, debug):
+def main(port, samples_root, base_url, n_samples, sample_interval, acr_key, acr_secret, es_host, gn_client_id, gn_user_id, gn_license, images_version, jwt_secret, debug):
     logstash_handler = logstash.LogstashHandler('localhost', 5959, version=1)
 
     logstash_logger = logging.getLogger('logstash-logger')
@@ -75,7 +78,9 @@ def main(port, samples_root, base_url, n_samples, sample_interval, acr_key, acr_
         [
             (r"/upload/(.+)/", UploadHandler),
             (r"/clubs", ClubsHandler),
-            (r"/bo/", BOHandler),
+            (r"/bo/samples", BOSamplesHandler),
+            (r"/bo", BOHandler),
+            (r"/token", TokenHandler),
             (r"/spy", SpyHandler),
             (r"/health", HealthHandler),
         ],
@@ -83,8 +88,10 @@ def main(port, samples_root, base_url, n_samples, sample_interval, acr_key, acr_
         clubs=clubs,
         sample_interval=sample_interval,
         samples_root=samples_root,
+        samples=samples_cache,
         recognizer=recognizer,
         gn_config=gn_config,
+        jwt_secret=jwt_secret,
     )
 
     app.listen(port, xheaders=True)

@@ -1,8 +1,14 @@
 from tornado.web import RequestHandler
 from chainmap import ChainMap
 import logging
+import jwt
 
 class CORSHandler(RequestHandler):
+    def get_token(self):
+        secret = self.settings['jwt_secret']
+        token = self.get_argument('token') 
+        return jwt.decode(token, secret, algorithms=['HS256'])
+
     def set_default_headers(self):
         self.set_header("Access-Control-Allow-Origin", "*")
         self.set_header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
