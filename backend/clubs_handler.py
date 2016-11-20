@@ -13,7 +13,11 @@ class ClubsHandler(BaseHandler):
         return int(distance.vincenty(location, client_latlng).meters)
 
     def get_clubs(self):
-        clubs = self.settings['clubs'].all()
+        clubs = [
+            club
+            for club in self.settings['clubs'].all()
+            if club['stopPublishing'] == 0
+        ]
 
         for club in clubs:
             club['distance'] = self.get_distance_from_client(club['location'])
