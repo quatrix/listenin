@@ -5,7 +5,6 @@ import copy
 import time
 
 from base_handler import CORSHandler
-from login_handler import LoginHandler
 from schema import Schema, And
 
 
