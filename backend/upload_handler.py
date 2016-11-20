@@ -81,8 +81,11 @@ class UploadHandler(BaseHandler):
         raise Return(recognized_song)
 
     @coroutine
-    def get_metadata(self, sample_path):
-        metadata = {}
+    def get_metadata(self, boxid, sample_path):
+        metadata = {
+            'hidden': False,
+            'keep_unrecognized': self.is_recognition_on_hold(boxid),
+        }
 
         try:
             metadata['gracenote'] = yield self.recognize_sample_with_gracenote(sample_path)
@@ -151,6 +154,12 @@ class UploadHandler(BaseHandler):
             self.log().info('latest sample still fresh and current sample unrecognized, ignoring')
             return True
         
+    def is_recording_on_hold(self, boxid):
+        return self.settings['clubs'].get(boxid)['stopRecording'] != 0
+
+    def is_recognition_on_hold(self, boxid):
+        return self.settings['clubs'].get(boxid)['stopRecognition'] != 0
+
     @coroutine
     def post(self, boxid):
         """
@@ -165,6 +174,10 @@ class UploadHandler(BaseHandler):
           4.1. If current sample recognized, it replaces the last sample
           4.2. if current sample isn't recognized, ignore current sample
         """
+
+        if self.is_recording_on_hold(boxid):
+            self.log().info('recording on hold, ignoring sample')
+            return
 
         samples_dir = os.path.join(self.settings['samples_root'], boxid)
         sample_id = int(time.time())
@@ -186,7 +199,7 @@ class UploadHandler(BaseHandler):
             tmp_file.write(self.request.body)
             tmp_file.flush()
 
-            full_metadata = yield self.get_metadata(tmp_file.name)
+            full_metadata = yield self.get_metadata(boxid, tmp_file.name)
             metadata = normalize_metadata(full_metadata)
 
             if self.is_same_song(latest_sample, metadata):

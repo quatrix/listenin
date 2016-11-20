@@ -3,7 +3,9 @@
 import copy
 import os
 import json
+import time
 
+from bo_handler import BOHandler
 
 _CLUBS_FILE = 'clubs.json'
 
@@ -27,6 +29,15 @@ class Clubs(object):
         self.samples = samples
         self.base_url = base_url
         self.images_version = images_version
+
+    def remove_overdue_stops(self):
+        for club in self._clubs.values():
+            for k in BOHandler._stoppers:
+                if club[k] in (0, -1):
+                    continue
+
+                if int(time.time()) > club[k]:
+                    club[k] = 0
 
     def get(self, club_id):
         club = copy.deepcopy(self._clubs[club_id])

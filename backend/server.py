@@ -4,7 +4,7 @@ import click
 import logstash
 
 from tornado.web import Application
-from tornado.ioloop import IOLoop
+from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.log import enable_pretty_logging
 from upload_handler import UploadHandler
 from clubs_handler import ClubsHandler
@@ -99,6 +99,9 @@ def main(port, samples_root, base_url, n_samples, sample_interval, acr_key, acr_
         jwt_secret=jwt_secret,
         users=users,
     )
+
+
+    PeriodicCallback(clubs.remove_overdue_stops, 1000).start()
 
     app.listen(port, xheaders=True)
     IOLoop.current().start()
