@@ -1,4 +1,9 @@
-from tornado.web import Application, RequestHandler
+import logging
+import json
+import click
+import logstash
+
+from tornado.web import Application
 from tornado.ioloop import IOLoop
 from tornado.log import enable_pretty_logging
 from upload_handler import UploadHandler
@@ -7,7 +12,7 @@ from spy_handler import SpyHandler
 from health_handler import HealthHandler
 from samples_cache import SamplesCache
 from clubs import Clubs
-from bo_handler import BOHandler 
+from bo_handler import BOHandler
 from bo_samples_handler import BOSamplesHandler
 from token_handler import TokenHandler
 
@@ -16,9 +21,6 @@ try:
 except ImportError:
     from acrcloud_osx.recognizer import ACRCloudRecognizer
 
-import logstash
-import logging
-import click
 
 
 @click.command()
@@ -36,7 +38,8 @@ import click
 @click.option('--images-version', required=True, help='Images version number')
 @click.option('--jwt-secret', required=True, help='Json Web Token secret')
 @click.option('--debug', default=False, help='Debug mode')
-def main(port, samples_root, base_url, n_samples, sample_interval, acr_key, acr_secret, es_host, gn_client_id, gn_user_id, gn_license, images_version, jwt_secret, debug):
+@click.option('--users-file', default='users.json', help='path to users file')
+def main(port, samples_root, base_url, n_samples, sample_interval, acr_key, acr_secret, es_host, gn_client_id, gn_user_id, gn_license, images_version, jwt_secret, debug, users_file):
     logstash_handler = logstash.LogstashHandler('localhost', 5959, version=1)
 
     logstash_logger = logging.getLogger('logstash-logger')
@@ -74,6 +77,8 @@ def main(port, samples_root, base_url, n_samples, sample_interval, acr_key, acr_
         images_version=images_version,
     )
 
+    users = json.loads(open(users_file).read())
+
     app = Application(
         [
             (r"/upload/(.+)/", UploadHandler),
@@ -92,6 +97,7 @@ def main(port, samples_root, base_url, n_samples, sample_interval, acr_key, acr_
         recognizer=recognizer,
         gn_config=gn_config,
         jwt_secret=jwt_secret,
+        users=users,
     )
 
     app.listen(port, xheaders=True)
