@@ -29,13 +29,6 @@ class BOHandler(CORSHandler):
     def get(self):
         club_id = self.get_club_id()
         club = self.settings['clubs'].get(club_id)
-
-        # FIXME keep this until all samples have the new attributes
-        for sample in club['samples']:
-            m = sample['metadata']
-            m['hidden'] = m.get('hidden', False)
-            m['keep_unrecognized'] = m.get('keep_unrecognized', False)
-
         self.finish(club)
 
     def _transform_stop_requests(self, request):

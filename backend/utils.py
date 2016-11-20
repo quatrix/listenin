@@ -73,6 +73,10 @@ def normalize_metadata(metadata):
         metadata['recognized_song'] = normalize_acrcloud_response(metadata['acrcloud'])
         del metadata['acrcloud'] # FIXME this is while we're using two recognizers
 
+    # FIXME keep this until all samples have the new attributes
+    metadata['hidden'] = metadata.get('hidden', False)
+    metadata['keep_unrecognized'] = metadata.get('keep_unrecognized', False)
+
     return metadata
 
 
