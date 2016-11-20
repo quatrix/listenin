@@ -9,6 +9,10 @@ class CORSHandler(RequestHandler):
         token = self.get_argument('token') 
         return jwt.decode(token, secret, algorithms=['HS256'])
 
+    def create_token(self, data):
+        secret = self.settings['jwt_secret']
+        return jwt.encode(data, secret, algorithm='HS256')
+
     def set_default_headers(self):
         self.set_header("Access-Control-Allow-Origin", "*")
         self.set_header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
