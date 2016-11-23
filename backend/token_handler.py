@@ -1,6 +1,7 @@
-from base_handler import CORSHandler
 import bcrypt
+import json
 
+from base_handler import CORSHandler
 
 def check_password(plain_text_password, hashed_password):
     return bcrypt.checkpw(
@@ -10,9 +11,11 @@ def check_password(plain_text_password, hashed_password):
 
 
 class TokenHandler(CORSHandler):
-    def get(self):
-        username = self.get_argument('username')
-        password = self.get_argument('password')
+    def post(self):
+        request = json.loads(self.request.body)
+
+        username = request['username']
+        password = request['password']
 
         user = self.settings['users'].get(username, None)
 
