@@ -3,9 +3,11 @@ from tornado.web import Application, RequestHandler
 from tornado.ioloop import IOLoop
 from tornado.gen import coroutine
 from tornado.httpclient import AsyncHTTPClient
+from operator import attrgetter
 import click
 import json
 import math
+import time
 from collections import namedtuple, Counter
 
 
@@ -15,7 +17,6 @@ Station = namedtuple('Station', _attrs)
 WIFI_FREQ = 2412
 
 class DISTANCE(object):
-    UNKNOWN = 'UNKNOWN'
     VERY_CLOSE = "VERY_CLOSE"
     CLOSE = "CLOSE"
     FAR = "FAR"
@@ -48,6 +49,7 @@ def distance_classifer(db):
 
 
 
+
 class WifiCollector(RequestHandler):
     @coroutine
     def record(self, host, distribution):
@@ -55,6 +57,7 @@ class WifiCollector(RequestHandler):
             'wifi_clients_{},host={} value={}'.format(k, host, v)
             for k,v in distribution.iteritems()
         ])
+        print(body)
 
         res = yield self.settings['http_client'].fetch(
             'http://localhost:8086/write?db={}'.format(self.settings['influx_db']),
@@ -63,14 +66,25 @@ class WifiCollector(RequestHandler):
         )
 
         print(res)
-        #curl -i -XPOST 'http://listenin.io:8086/write?db=listenin' -u box:box666kgb --data-binary "$BODY"
         
+    def write_db_series(self, series):
+        with open('series.log', 'a') as f:
+            f.write('{},{}\n'.format(int(time.time()), ','.join(map(str, series))))
+
     @coroutine
     def post(self, box):
         stations = json.loads(self.request.body)
         stations = [Station(*s) for s in stations]
 
+        self.write_db_series(map(attrgetter('power'), stations))
+
         distance_distribution = Counter([distance_classifer(s.power) for s in stations])
+        distance_distribution['total'] = len(stations)
+
+        for k in filter(lambda k : k == k.upper(), dir(DISTANCE)):
+            if k not in distance_distribution:
+                distance_distribution[k] = 0
+
         yield self.record(box, distance_distribution)
 
 @click.command()
