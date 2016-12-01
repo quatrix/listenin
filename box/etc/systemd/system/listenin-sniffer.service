@@ -1,0 +1,13 @@
+
+[Unit]
+DefaultDependencies=false
+Description=ListenIn Sniffer service
+After=local-fs-pre.target
+Before=local-fs.target
+
+[Service]
+ExecStart=/home/pi/listenin/box/scripts/snif_snif.py wlan0 radio
+Restart=always
+
+[Install]
+WantedBy=local-fs.target
