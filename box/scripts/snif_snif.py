@@ -1,14 +1,21 @@
 #!/usr/bin/env python
 
 import os
+import traceback
 import glob
 import csv
 import sys
 import json
 import urllib2
 import subprocess
+import logging
 from time import mktime, strptime, sleep
 from StringIO import StringIO
+
+
+
+logging.basicConfig(stream=sys.stdout, level=logging.WARNING)
+
 
 def timestr_to_unixtime(s):
     # 2016-11-23 17:20:28 
@@ -52,10 +59,16 @@ def parse_and_send(url, filename):
 
 def sniff(how_long, interface):
     output_file_prefix = '/tmp/captured'
+    DEVNULL = open(os.devnull, 'wb')
 
     map(os.unlink, glob.glob('{}-*.csv'.format(output_file_prefix)))
+    subprocess.check_call(['/sbin/ifconfig', interface, 'down'])
     subprocess.check_call(['/sbin/iwconfig', interface, 'mode', 'monitor'])
-    p = subprocess.Popen(['/usr/sbin/airodump-ng', interface, '-w', output_file_prefix, '--output-format', 'csv'])
+    p = subprocess.Popen(
+        ['/usr/sbin/airodump-ng', interface, '-w', output_file_prefix, '--output-format', 'csv'],
+        stdout=DEVNULL,
+        stderr=DEVNULL,
+    )
     sleep(how_long)
     p.terminate()
 
@@ -63,10 +76,14 @@ def sniff(how_long, interface):
 
 def main(interface, host):
     url = 'http://listenin.io:5152/wifis/{}/'.format(host)
-    output_file = sniff(10, interface)
 
-    parse_and_send(url, output_file)
-
+    while True:
+        try:
+            output_file = sniff(600, interface)
+            parse_and_send(url, output_file)
+        except Exception:
+            logging.exception('sniffing')
+            sleep(5)
 
 if __name__ == '__main__':
     main(*sys.argv[1:3])
