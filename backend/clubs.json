@@ -109,7 +109,7 @@
         "details": "\"It\u2019s the one place where you will find an outstanding content, underground music and culture futuristic elements of design mixed with retro 70\u2019s and 80\u2019s vibes.\" - mindspace.me"
     }, 
     "radio": {
-        "stopRecognition": 1479654784, 
+        "stopRecognition": 0, 
         "name": "Radio EPGB", 
         "tags": [
             "Dancing", 
@@ -166,7 +166,7 @@
         "details": "\"Equally good for lunch, afternoon coffee, aperitifs or late-night drinks. The soundtrack comes courtesy of jazz disks during the day and live bands and DJs at night.\" - Lonely planet"
     }, 
     "kulialma": {
-        "stopRecognition": -1, 
+        "stopRecognition": 0, 
         "name": "Kuli Alma", 
         "tags": [
             "Dancing", 
