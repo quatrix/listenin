@@ -38,6 +38,7 @@ class ClubsHandler(BaseHandler):
         for club in clubs:
             club['samples'] = self.filtered_samples(club['samples'])
             club['distance'] = self.get_distance_from_client(club['location'])
+            club['location__'] = club['location']
 
         return sorted(clubs, key=itemgetter('distance'))
 
