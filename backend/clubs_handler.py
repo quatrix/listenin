@@ -1,7 +1,13 @@
 from operator import itemgetter
 import copy
+import time
 from geopy import distance
 from base_handler import BaseHandler
+
+
+def is_club_not_live(club):
+    last_sample_dt = time.time() - club['samples'][0]["_created"]
+    return last_sample_dt > 600
 
 
 class ClubsHandler(BaseHandler):
@@ -40,7 +46,10 @@ class ClubsHandler(BaseHandler):
             club['distance'] = self.get_distance_from_client(club['location'])
             club['location__'] = club['location']
 
-        return sorted(clubs, key=itemgetter('distance'))
+        return sorted(
+            sorted(clubs, key=itemgetter('distance')),
+            key=is_club_not_live
+        )
 
     def get(self):
         self.finish({'clubs': self.get_clubs()})
