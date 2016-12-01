@@ -54,6 +54,7 @@ class BoxState(object):
         box = event['host'].split('-')[-1]
         msg = event['message']
 
+        print(event['@timestamp'], box, msg)
         if msg.startswith(self.COLOR_CHANGE):
             self.set_box_attr(box, 'color', msg.split()[-1])
 

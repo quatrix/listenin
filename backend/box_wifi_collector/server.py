@@ -14,39 +14,15 @@ from collections import namedtuple, Counter
 _attrs = ['mac', 'first_seen', 'last_seen', 'power', 'packets', 'bssid', 'probed_essids']
 Station = namedtuple('Station', _attrs)
 
-WIFI_FREQ = 2412
 
-class DISTANCE(object):
-    VERY_CLOSE = "VERY_CLOSE"
-    CLOSE = "CLOSE"
-    FAR = "FAR"
-    VERY_FAR= "VERY_FAR"
+def group_series(series):
+    s = Counter([int(math.ceil(x/10)*10) for x in series])
 
+    for i in range(-90, 10, 10):
+        if i not in s:
+            s[i] = 0
 
-def db_to_distance(db):
-    """
-    FSPL function taken from
-    http://stackoverflow.com/questions/11217674/how-to-calculate-distance-from-wifi-router-using-signal-strength
-    """
-
-    return int(math.pow(10, (27.55 - (20 * math.log10(WIFI_FREQ)) + abs(db)) / 20.0))
-
-
-def distance_classifer(db):
-    distance = db_to_distance(db) 
-
-    if distance < 3:
-        return DISTANCE.VERY_CLOSE
-
-    if distance < 10:
-        return DISTANCE.CLOSE
-
-    if distance < 30:
-        return DISTANCE.FAR
-
-    return DISTANCE.VERY_FAR
-
-
+    return s
 
 
 
@@ -67,23 +43,13 @@ class WifiCollector(RequestHandler):
 
         print(res)
         
-    def write_db_series(self, series):
-        with open('series.log', 'a') as f:
-            f.write('{},{}\n'.format(int(time.time()), ','.join(map(str, series))))
-
     @coroutine
     def post(self, box):
         stations = json.loads(self.request.body)
         stations = [Station(*s) for s in stations]
 
-        self.write_db_series(map(attrgetter('power'), stations))
-
-        distance_distribution = Counter([distance_classifer(s.power) for s in stations])
+        distance_distribution = group_series(map(attrgetter('power'), stations))
         distance_distribution['total'] = len(stations)
-
-        for k in filter(lambda k : k == k.upper(), dir(DISTANCE)):
-            if k not in distance_distribution:
-                distance_distribution[k] = 0
 
         yield self.record(box, distance_distribution)
 
