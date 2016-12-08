@@ -196,7 +196,7 @@ class UploadHandler(BaseHandler):
         if self.is_latest_sample_fresh_and_recognized(latest_sample):
             return
 
-        with NamedTemporaryFile() as tmp_file:
+        with NamedTemporaryFile(suffix='.mp3') as tmp_file:
             tmp_file.write(self.request.body)
             tmp_file.flush()
 
