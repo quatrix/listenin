@@ -16,7 +16,7 @@ class BOHandler(CORSHandler):
     ]
 
     _schema = Schema({
-        'details': And(basestring, lambda s: 1 <= len(s) <= 150),
+        'details': And(basestring, lambda s: 1 <= len(s) <= 250),
         'tags': [And(basestring, lambda s: 1 <= len(s) <= 10)],
         'stopPublishing': int,
         'stopRecording': int,
