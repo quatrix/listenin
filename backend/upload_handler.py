@@ -2,6 +2,7 @@ import time
 import os
 import logging
 import json
+from shutil import copyfile
 from tempfile import NamedTemporaryFile
 
 from tornado.gen import coroutine, Return
@@ -195,7 +196,7 @@ class UploadHandler(BaseHandler):
         if self.is_latest_sample_fresh_and_recognized(latest_sample):
             return
 
-        with NamedTemporaryFile(delete=False, suffix='.mp3') as tmp_file:
+        with NamedTemporaryFile() as tmp_file:
             tmp_file.write(self.request.body)
             tmp_file.flush()
 
@@ -208,12 +209,17 @@ class UploadHandler(BaseHandler):
             if self.is_latest_sample_fresh_and_current_unrecognized(latest_sample, metadata):
                 return
 
-            replace_latest = self.should_replace_latest_with_current(latest_sample, metadata)
+            # We copy instead of moving because:
+            # 1. /tmp might be a different file system.
+            # 2. to utilize NamedTemporaryFile cleanup, if we
+            #    don't make it this far, the tmp file will be deleted.
+            #
+            # * We always create a new sample, even when replacing an old
+            #   sample because clients will access it until they refresh and get
+            #   the new one.
+            copyfile(tmp_file.name, sample_path)
 
-            os.chmod(tmp_file.name, 0644)
-            os.rename(tmp_file.name, sample_path)
-
-            if replace_latest:
+            if self.should_replace_latest_with_current(latest_sample, metadata):
                 self.log().info('latest sample still fresh but unrecognized, replacing with recognized')
                 self.settings['samples'].replace_latest(sample_id, full_metadata, boxid)
             else:
