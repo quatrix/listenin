@@ -35,7 +35,7 @@ class TokenHandler(CORSHandler):
         if user is None:
             return
 
-        if user['admin'] and 'payload' in self._request():
+        if user.get('admin', False) and 'payload' in self._request():
             return self.create_token(self._request()['payload'])
 
         return self.create_token(user)
