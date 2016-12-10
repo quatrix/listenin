@@ -6,7 +6,7 @@ import logstash
 from tornado.web import Application
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.log import enable_pretty_logging
-from upload_handler import UploadHandler
+from upload_handler import NoAuthUploadHandler, UploadHandler
 from clubs_handler import ClubsHandler
 from spy_handler import SpyHandler
 from health_handler import HealthHandler
@@ -81,7 +81,8 @@ def main(port, samples_root, base_url, n_samples, sample_interval, acr_key, acr_
 
     app = Application(
         [
-            (r"/upload/(.+)/", UploadHandler),
+            (r"/upload/(.+)/", NoAuthUploadHandler),
+            (r"/upload", UploadHandler),
             (r"/clubs", ClubsHandler),
             (r"/bo/samples", BOSamplesHandler),
             (r"/bo", BOHandler),

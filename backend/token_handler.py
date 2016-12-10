@@ -1,6 +1,8 @@
 import bcrypt
 import json
+from copy import copy
 
+from tornado.web import HTTPError
 from base_handler import CORSHandler
 
 def check_password(plain_text_password, hashed_password):
@@ -11,16 +13,32 @@ def check_password(plain_text_password, hashed_password):
 
 
 class TokenHandler(CORSHandler):
+    def _authenticate(self):
+        username = self._request()['username']
+        password = self._request()['password']
+        user = copy(self.settings['users'].get(username))
+
+        if not check_password(password, user['hashed_password']):
+            raise HTTPError(403)
+
+        del user['hashed_password']
+        return user
+
+    def _request(self):
+        if not hasattr(self, '_req'):
+            self._req = json.loads(self.request.body)
+        return self._req
+
+    def _create_token(self):
+        user = self._authenticate()
+
+        if user is None:
+            return
+
+        if user['admin'] and 'payload' in self._request():
+            return self.create_token(self._request()['payload'])
+
+        return self.create_token(user)
+
     def post(self):
-        request = json.loads(self.request.body)
-
-        username = request['username']
-        password = request['password']
-
-        user = self.settings['users'].get(username, None)
-
-        if user and check_password(password, user['hashed_password']):
-            token = self.create_token({'club_id': user['club_id']})
-            self.finish({'token': token})
-        else:
-            self.finish({'token': None})
+        self.finish({'token': self._create_token()})

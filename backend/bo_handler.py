@@ -23,9 +23,6 @@ class BOHandler(CORSHandler):
         'stopRecognition': int,
     }, ignore_extra_keys=True)
 
-    def get_club_id(self):
-        return self.get_token()['club_id']
-        
     def get(self):
         club_id = self.get_club_id()
         club = self.settings['clubs'].get(club_id)

@@ -13,6 +13,9 @@ class CORSHandler(RequestHandler):
         secret = self.settings['jwt_secret']
         return jwt.encode(data, secret, algorithm='HS256')
 
+    def get_club_id(self):
+        return self.get_token()['club_id']
+
     def set_default_headers(self):
         self.set_header("Access-Control-Allow-Origin", "*")
         self.set_header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")

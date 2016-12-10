@@ -23,7 +23,7 @@ def is_recognized(sample):
     return sample['metadata'] is not None and 'recognized_song' in sample['metadata']
 
 
-class UploadHandler(BaseHandler):
+class BaseUploadHandler(BaseHandler):
     _thread_pool = ThreadPoolExecutor(4)
 
     @coroutine
@@ -162,7 +162,7 @@ class UploadHandler(BaseHandler):
         return self.settings['clubs'].get(boxid)['stopRecognition'] != 0
 
     @coroutine
-    def post(self, boxid):
+    def upload(self, boxid):
         """
         FRESH sample: a sample younger than sampling interval (i.e if we want to sample every
         4 minutes, then a sample taken < 4 minutes ago considered fresh, otherwise it's STALE)
@@ -225,3 +225,19 @@ class UploadHandler(BaseHandler):
             else:
                 self.log().info('adding new sample')
                 self.settings['samples'].add(sample_id, full_metadata, boxid)
+
+
+class NoAuthUploadHandler(BaseUploadHandler):
+    """
+    for backwards compatability, until all boxes are updated
+    """
+
+    @coroutine
+    def post(self, boxid):
+        yield self.upload(boxid)
+
+
+class UploadHandler(BaseUploadHandler):
+    @coroutine
+    def post(self):
+        yield self.upload(self.get_club_id())
