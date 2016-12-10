@@ -29,8 +29,8 @@ def get_duration(f):
 
 
 class ListenIn(object):
-    def __init__(self, boxid, duration, interval, retrytime):
-        self.boxid = boxid
+    def __init__(self, token, duration, interval, retrytime):
+        self.token = token
         self.duration = duration
         self.interval = interval
         self.retrytime = retrytime
@@ -158,7 +158,7 @@ class ListenIn(object):
         pass
 
     def upload_sample(self, sample):
-        url = 'http://api.listenin.io/upload/{}/'.format(self.boxid)
+        url = 'http://api.listenin.io/upload?token={}'.format(self.token)
         requests.post(url, data=sample, timeout=60).raise_for_status()
 
     def cleanup(self):
@@ -166,12 +166,14 @@ class ListenIn(object):
 
 
 @click.command()
-@click.option('--boxid', required=True, help='Unique id for box')
+@click.option('--token-file', default='/etc/listenin/token', help='Duration of each sample', type=click.Path())
 @click.option('--duration', default=20, help='Duration of each sample')
 @click.option('--interval', default=60, help='How often to take a sample')
 @click.option('--retrytime', default=10, help='How much seconds to wait before retrying on failure')
-def main(boxid, duration, interval, retrytime):
-    l = ListenIn(boxid, duration, interval, retrytime)
+def main(token_file, duration, interval, retrytime):
+    token = open(token_file).read()
+
+    l = ListenIn(token, duration, interval, retrytime)
     
     try:
         l.listen()
