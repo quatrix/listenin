@@ -240,4 +240,6 @@ class NoAuthUploadHandler(BaseUploadHandler):
 class UploadHandler(BaseUploadHandler):
     @coroutine
     def post(self):
-        yield self.upload(self.get_club_id())
+        club_id = self.get_club_id()
+        self.log().info('upload from %s', club_id)
+        yield self.upload(club_id)
