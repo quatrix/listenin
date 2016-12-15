@@ -72,7 +72,7 @@ def main(port, influx_db_name, secret):
     http_client = AsyncHTTPClient()
 
     app = Application([
-        (r'/wifis/', WifiCollector),
+        (r'/wifis', WifiCollector),
     ], http_client=http_client, influx_db=influx_db_name, secret=secret)
 
     app.listen(port)
