@@ -29,7 +29,7 @@ def group_series(series):
 
 class WifiCollector(RequestHandler):
     def get_token(self):
-        secret = self.settings['jwt_secret']
+        secret = self.settings['secret']
         token = self.get_argument('token') 
         return jwt.decode(token, secret, algorithms=['HS256'])
 
