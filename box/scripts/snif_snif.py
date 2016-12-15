@@ -74,8 +74,13 @@ def sniff(how_long, interface):
 
     return '{}-01.csv'.format(output_file_prefix)
 
-def main(interface, host):
-    url = 'http://listenin.io:5152/wifis/{}/'.format(host)
+
+def get_token():
+    return open('/etc/listenin/token').read()
+
+
+def main(interface):
+    url = 'http://listenin.io:5152/wifis?token={}'.format(get_token())
 
     while True:
         try:
@@ -86,4 +91,4 @@ def main(interface, host):
             sleep(5)
 
 if __name__ == '__main__':
-    main(*sys.argv[1:3])
+    main(sys.argv[1])
