@@ -8,6 +8,7 @@ import click
 import json
 import math
 import time
+import jwt
 from collections import namedtuple, Counter
 
 
@@ -27,6 +28,14 @@ def group_series(series):
 
 
 class WifiCollector(RequestHandler):
+    def get_token(self):
+        secret = self.settings['jwt_secret']
+        token = self.get_argument('token') 
+        return jwt.decode(token, secret, algorithms=['HS256'])
+
+    def get_club_id(self):
+        return self.get_token()['club_id']
+
     @coroutine
     def record(self, host, distribution):
         body = '\n'.join([
@@ -44,7 +53,9 @@ class WifiCollector(RequestHandler):
         print(res)
         
     @coroutine
-    def post(self, box):
+    def post(self):
+        box = self.get_club_id()
+
         stations = json.loads(self.request.body)
         stations = [Station(*s) for s in stations]
 
@@ -54,14 +65,15 @@ class WifiCollector(RequestHandler):
         yield self.record(box, distance_distribution)
 
 @click.command()
-@click.option('--port', default=5152, help='port to bind to')
-@click.option('--influx-db-name', required=True, help='name of influx db')
-def main(port, influx_db_name):
+@click.option('--port', default=5152, help='Port to bind to')
+@click.option('--influx-db-name', required=True, help='Name of influx db')
+@click.option('--secret', required=True, help='JWT Secret')
+def main(port, influx_db_name, secret):
     http_client = AsyncHTTPClient()
 
     app = Application([
-        (r'/wifis/(.+)/', WifiCollector),
-    ], http_client=http_client, influx_db=influx_db_name)
+        (r'/wifis/', WifiCollector),
+    ], http_client=http_client, influx_db=influx_db_name, secret=secret)
 
     app.listen(port)
     IOLoop.current().start()
