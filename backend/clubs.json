@@ -80,9 +80,9 @@
             "Dancing", 
             "Large"
         ], 
-        "stopPublishing": 0, 
+        "stopPublishing": -1, 
         "wifi": "whoknows", 
-        "stopRecording": 0, 
+        "stopRecording": -1, 
         "phone": "+972-52-805-4448", 
         "location": [
             32.0743404, 
