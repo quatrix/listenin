@@ -51,7 +51,7 @@ class BoxState(object):
             c.write_message(box_state)
 
     def process_event(self, event):
-        box = event['host'].split('-')[-1]
+        box = event['host'].split('listenin-')[-1]
         msg = event['message']
 
         print(event['@timestamp'], box, msg)
