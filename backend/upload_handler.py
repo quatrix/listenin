@@ -23,7 +23,7 @@ def is_recognized(sample):
     return sample['metadata'] is not None and 'recognized_song' in sample['metadata']
 
 
-class BaseUploadHandler(BaseHandler):
+class UploadHandler(BaseHandler):
     _thread_pool = ThreadPoolExecutor(4)
 
     @coroutine
@@ -226,18 +226,6 @@ class BaseUploadHandler(BaseHandler):
                 self.log().info('adding new sample')
                 self.settings['samples'].add(sample_id, full_metadata, boxid)
 
-
-class NoAuthUploadHandler(BaseUploadHandler):
-    """
-    for backwards compatability, until all boxes are updated
-    """
-
-    @coroutine
-    def post(self, boxid):
-        yield self.upload(boxid)
-
-
-class UploadHandler(BaseUploadHandler):
     @coroutine
     def post(self):
         club_id = self.get_club_id()
