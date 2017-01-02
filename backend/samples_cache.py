@@ -30,74 +30,74 @@ class SamplesCache(object):
 
         return self._samples
 
-    def latest(self, club):
+    def latest(self, box_id):
         """
-        Returns latest sample for club
+        Returns latest sample for box
         """
 
         try:
-            return self._samples[club][0]
+            return self._samples[box_id][0]
         except (KeyError, IndexError):
             return None
 
-    def add(self, sample, metadata, club):
+    def add(self, sample, metadata, box_id):
         """
-        Insert sample into club samples while keeping samples size n_samples
+        Insert sample into box samples while keeping samples size n_samples
         """
 
-        self._write_metadata(sample, metadata, club)
+        self._write_metadata(sample, metadata, box_id)
 
-        if len(self._samples[club]) == self.n_samples:
-            self._samples[club].pop()
+        if len(self._samples[box_id]) == self.n_samples:
+            self._samples[box_id].pop()
 
-        self._samples[club].insert(0, self._enrich_sample(sample, club))
+        self._samples[box_id].insert(0, self._enrich_sample(sample, box_id))
 
-    def toggle_hiddeness(self, club, sample):
-        metadata = json.loads(open(self._get_json_path(club, sample)).read())
+    def toggle_hiddeness(self, box_id, sample):
+        metadata = json.loads(open(self._get_json_path(box_id, sample)).read())
         metadata['hidden'] = not metadata.get('hidden', False)
-        self._write_metadata(sample, metadata, club)
+        self._write_metadata(sample, metadata, box_id)
 
-        for s in self._samples[club]:
+        for s in self._samples[box_id]:
             if s['_created'] == sample:
                 s['metadata']['hidden'] = not s['metadata'].get('hidden', False)
                 break
 
-    def replace_latest(self, sample, metadata, club):
+    def replace_latest(self, sample, metadata, box_id):
         """
         Replaces last sample with new sample
         """
 
-        self._write_metadata(sample, metadata, club)
+        self._write_metadata(sample, metadata, box_id)
 
-        os.unlink(self._get_json_path(club, self._samples[club][0]['_created']))
-        self._samples[club][0] = self._enrich_sample(sample, club)
+        os.unlink(self._get_json_path(box_id, self._samples[box_id][0]['_created']))
+        self._samples[box_id][0] = self._enrich_sample(sample, box_id)
 
     def _populate_samples_cache(self):
-        for club in os.listdir(self.samples_root):
-            self._samples[club] = self._enrich_samples(self._get_samples(club), club)
+        for box_id in os.listdir(self.samples_root):
+            self._samples[box_id] = self._enrich_samples(self._get_samples(box_id), box_id)
 
-    def _get_samples(self, club):
-        path = os.path.join(self.samples_root, club)
+    def _get_samples(self, box_id):
+        path = os.path.join(self.samples_root, box_id)
         samples = [sample for sample in os.listdir(path) if sample.endswith('.json')]
         samples = [number_part_of_sample(sample) for sample in samples]
         return sorted(samples, reverse=True)[:self.n_samples]
 
-    def _get_metadata(self, sample, club):
-        return get_metadata_from_json(self._get_json_path(club, sample))
+    def _get_metadata(self, sample, box_id):
+        return get_metadata_from_json(self._get_json_path(box_id, sample))
 
-    def _enrich_sample(self, sample, club):
+    def _enrich_sample(self, sample, box_id):
         return {
             '_created': sample,
             'date': unix_time_to_readable_date(sample),
-            'link': os.path.join(self.base_url, 'uploads', club, '{}.mp3'.format(sample)),
-            'metadata': self._get_metadata(sample, club),
+            'link': os.path.join(self.base_url, 'uploads', box_id, '{}.mp3'.format(sample)),
+            'metadata': self._get_metadata(sample, box_id),
         }
 
-    def _enrich_samples(self, samples, club):
-        return [self._enrich_sample(sample, club) for sample in samples]
+    def _enrich_samples(self, samples, box_id):
+        return [self._enrich_sample(sample, box_id) for sample in samples]
 
-    def _write_metadata(self, sample, metadata, club):
-        open(self._get_json_path(club, sample), 'w').write(json.dumps(metadata))
+    def _write_metadata(self, sample, metadata, box_id):
+        open(self._get_json_path(box_id, sample), 'w').write(json.dumps(metadata))
 
-    def _get_json_path(self, club, sample):
-        return os.path.join(self.samples_root, club, '{}.json'.format(sample))
+    def _get_json_path(self, box_id, sample):
+        return os.path.join(self.samples_root, box_id, '{}.json'.format(sample))

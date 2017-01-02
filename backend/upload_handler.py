@@ -85,7 +85,7 @@ class UploadHandler(BaseHandler):
     def get_metadata(self, boxid, sample_path):
         metadata = {
             'hidden': False,
-            'keep_unrecognized': self.is_recognition_on_hold(boxid),
+            'keep_unrecognized': self.settings['clubs'].is_recognition_on_hold(boxid),
         }
 
         try:
@@ -154,12 +154,6 @@ class UploadHandler(BaseHandler):
         if self.is_fresh(latest_sample) and 'recognized_song' not in metadata:
             self.log().info('latest sample still fresh and current sample unrecognized, ignoring')
             return True
-        
-    def is_recording_on_hold(self, boxid):
-        return self.settings['clubs'].get(boxid)['stopRecording'] != 0
-
-    def is_recognition_on_hold(self, boxid):
-        return self.settings['clubs'].get(boxid)['stopRecognition'] != 0
 
     @coroutine
     def upload(self, boxid):
@@ -176,7 +170,7 @@ class UploadHandler(BaseHandler):
           4.2. if current sample isn't recognized, ignore current sample
         """
 
-        if self.is_recording_on_hold(boxid):
+        if self.settings['clubs'].is_recording_on_hold(boxid):
             self.log().info('recording on hold, ignoring sample')
             return
 
@@ -228,6 +222,6 @@ class UploadHandler(BaseHandler):
 
     @coroutine
     def post(self):
-        club_id = self.get_club_id()
-        self.log().info('upload from %s', club_id)
-        yield self.upload(club_id)
+        box_id = self.get_club_id()
+        self.log().info('upload from %s', box_id)
+        yield self.upload(box_id)

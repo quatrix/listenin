@@ -39,11 +39,14 @@ class Clubs(object):
                 if int(time.time()) > club[k]:
                     club[k] = 0
 
+    def get_box_id(self, club_id):
+        return self._clubs[club_id].get('box_id')
+
     def get(self, club_id):
         club = copy.deepcopy(self._clubs[club_id])
 
         club['logo'] = self.get_logo(club_id)
-        club['samples'] = self.samples.all()[club_id]
+        club['samples'] = self.samples.all().get(club['box_id'])
         club['cover'] = os.path.join(
             self.get_images_path(),
             club_id,
@@ -53,15 +56,7 @@ class Clubs(object):
         return club
 
     def all(self):
-        clubs = []
-
-        for club_id, samples in self.samples.all().iteritems():
-            if not samples or club_id not in self._clubs:
-                continue
-
-            clubs.append(self.get(club_id))
-
-        return clubs
+        return [self.get(club_id) for club_id in self._clubs.keys()]
 
     def update(self, club_id, club):
         clubs = copy.deepcopy(self._clubs)
@@ -86,3 +81,19 @@ class Clubs(object):
             image,
             self.images_version
         )
+        
+    def find_club_by_box_id(self, box_id):
+        # FIXME yeah it's o(n) but n is very small 
+        # so this should do for now, lookup table in the future
+
+        for club in self._clubs.values():
+            if club['box_id'] == box_id:
+                return club
+    
+    def is_recording_on_hold(self, box_id):
+        club = self.find_club_by_box_id(box_id)
+        return club and club['stopRecording'] != 0
+
+    def is_recognition_on_hold(self, box_id):
+        club = self.find_club_by_box_id(box_id)
+        return club and club['stopRecognition'] != 0

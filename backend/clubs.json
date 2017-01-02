@@ -1,6 +1,7 @@
 {
     "limalima": {
         "stopRecognition": 0, 
+        "box_id": "limalima",
         "name": "Lima Lima", 
         "tags": [
             "Small", 
@@ -19,6 +20,7 @@
     }, 
     "hostel51": {
         "stopRecognition": 0, 
+        "box_id": "hostel51",
         "name": "Hostel 51", 
         "tags": [
             "Tables", 
@@ -37,26 +39,9 @@
         "address": "Yehuda ha-Levi St 51, Tel Aviv-Yafo", 
         "details": "A restaurant / bar that also functions as a tourist hostel, live dj and a versatile menu."
     }, 
-    "tahat": {
-        "stopRecognition": 0, 
-        "name": "Tahat", 
-        "tags": [
-            "Dancing", 
-            "Large"
-        ], 
-        "stopPublishing": 0, 
-        "wifi": "whoknows", 
-        "stopRecording": 0, 
-        "phone": "+972-52-666-6666", 
-        "location": [
-            32.08418, 
-            34.7794211
-        ], 
-        "address": "Ibn Gavirol St 106, Tel Aviv-Yafo", 
-        "details": "\"This latest addition to the club scene draws crowds in a relaxed atmosphere. People come to dance on a rather explosive mix, which mixes rave, hip-hop and techno\" - petitfute.com"
-    }, 
     "annaloulou": {
         "stopRecognition": 0, 
+        "box_id": "annaloulou",
         "name": "Anna Loulou", 
         "tags": [
             "Smoking", 
@@ -75,6 +60,7 @@
     }, 
     "bootleg": {
         "stopRecognition": 0, 
+        "box_id": "box-6",
         "name": "Bootleg", 
         "tags": [
             "Dancing", 
@@ -82,7 +68,7 @@
         ], 
         "stopPublishing": -1, 
         "wifi": "whoknows", 
-        "stopRecording": -1, 
+        "stopRecording": 0, 
         "phone": "+972-52-805-4448", 
         "location": [
             32.0743404, 
@@ -93,6 +79,7 @@
     }, 
     "sputnik": {
         "stopRecognition": 0, 
+        "box_id": "sputnik",
         "name": "Sputnik", 
         "tags": [
             "Dancing"
@@ -110,6 +97,7 @@
     }, 
     "radio": {
         "stopRecognition": 0, 
+        "box_id": "radio",
         "name": "Radio EPGB", 
         "tags": [
             "Dancing", 
@@ -129,6 +117,7 @@
     }, 
     "abraxas": {
         "stopRecognition": 0, 
+        "box_id": "abraxas",
         "name": "Abraxas", 
         "tags": [
             "Small", 
@@ -148,6 +137,7 @@
     }, 
     "rothschild12": {
         "stopRecognition": 0, 
+        "box_id": "rothschild12",
         "name": "Rothschild 12", 
         "tags": [
             "Smoking", 
@@ -167,6 +157,7 @@
     }, 
     "kulialma": {
         "stopRecognition": 0, 
+        "box_id": "kulialma",
         "name": "Kuli Alma", 
         "tags": [
             "Dancing", 
@@ -186,6 +177,7 @@
     }, 
     "pasaz": {
         "stopRecognition": 0, 
+        "box_id": "pasaz",
         "name": "The Pas\u00e1\u017e", 
         "tags": [
             "Dancing", 

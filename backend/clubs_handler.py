@@ -38,7 +38,7 @@ class ClubsHandler(BaseHandler):
         clubs = [
             club
             for club in self.settings['clubs'].all()
-            if club['stopPublishing'] == 0
+            if club['stopPublishing'] == 0 and club['samples']
         ]
 
         for club in clubs:
