@@ -99,35 +99,38 @@ class SocketHandler(WebSocketHandler):
         secret = self.settings['jwt_secret']
         token = self.get_argument('token')
         token = jwt.decode(token, secret, algorithms=['HS256'])
-        self._club_id = token['club_id']
+        club_id = token['club_id']
 
-        clients = self.settings['clients'][self._club_id]
+        self._box_id = self.settings['clubs'][club_id]['box_id']
+        clients = self.settings['clients'][self._box_id]
 
         if self not in clients:
             clients.append(self)
 
-        self.write_message(self.settings['boxes'].get_box_state(self._club_id))
+        self.write_message(self.settings['boxes'].get_box_state(self._box_id))
 
     def on_close(self):
-        clients = self.settings['clients'][self._club_id]
+        clients = self.settings['clients'][self._box_id]
 
         if self in clients:
             clients.remove(self)
 
 @click.command()
 @click.option('--jwt-secret', required=True, help='Json Web Token secret')
+@click.option('--clubs-file', required=True, help='Clubs json location')
 @click.option('--ws-port', default=9998, help='WebSocket listen port')
 @click.option('--log-port', default=9999, help='TCP port on which to listen to logs')
-def main(jwt_secret, ws_port, log_port):
+def main(jwt_secret, clubs_file, ws_port, log_port):
     clients = defaultdict(list)
     boxes = BoxState(clients)
+    clubs = json.loads(open(clubs_file).read())
 
     box_log_listener = BoxLogListener()
     box_log_listener.set_event_handler(boxes.process_event)
 
     app = Application([
         (r'/updates/', SocketHandler),
-    ], boxes=boxes, clients=clients, jwt_secret=jwt_secret)
+    ], boxes=boxes, clients=clients, jwt_secret=jwt_secret, clubs=clubs)
 
     box_log_listener.listen(log_port)
     app.listen(ws_port)
