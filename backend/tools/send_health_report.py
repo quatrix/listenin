@@ -18,7 +18,7 @@ _mailgun = {
     'sandbox': 'mg.listenin.io',
 }
 
-_ignore_boxes = {'bootleg'}
+_ignore_clubs = {'bootleg', 'sputnik', 'limalima'}
 
 CLOSED = object()
 
@@ -140,7 +140,7 @@ def _get_closing_hour(venue):
 
 
 def _get_health():
-    return requests.get('http://api.listenin.io/health?box=all').json()
+    return requests.get('http://api.listenin.io/health?club_id=all').json()
 
 
 def _utc_to_localtime(d, local_tz):
@@ -184,27 +184,27 @@ def main(recp, no_send):
 
     report = []
 
-    for box_name, box in health.iteritems():
-        if box_name in _ignore_boxes:
+    for club_id, club_health in health.iteritems():
+        if club_id in _ignore_clubs:
             continue
 
         try:
-            expected = _get_closing_hour(box_name)
+            expected = _get_closing_hour(club_id)
         except KeyError:
-            report.append((datetime.timedelta(days=999), '* {} - don\'t know closing hour'.format(box_name)))
+            report.append((datetime.timedelta(days=999), '* {} - don\'t know closing hour'.format(club_id)))
             continue
 
-        if box['last_upload'] is None:
-            report.append((datetime.timedelta(days=999), '* {} - no samples found'.format(box_name)))
+        if club_health['last_upload'] is None:
+            report.append((datetime.timedelta(days=999), '* {} - no samples found'.format(club_id)))
             continue
 
-        actual = _utc_to_localtime(box['last_upload'], local_tz=_hours[box_name]['_tz'])
+        actual = _utc_to_localtime(club_health['last_upload'], local_tz=_hours[club_id]['_tz'])
 
         if actual < expected:
             if (expected - actual).total_seconds() < 60 * 15:
                 continue
 
-            last_upload_delta = datetime.datetime.now(tz.tzutc()) - parser.parse(box['last_upload'])
+            last_upload_delta = datetime.datetime.now(tz.tzutc()) - parser.parse(club_health['last_upload'])
 
             if last_upload_delta.days:
                 if get_hours(last_upload_delta) > 12:
@@ -217,7 +217,7 @@ def main(recp, no_send):
                     expected.strftime('%H:%M')
                 )
 
-            report.append((last_upload_delta, '* {} - last upload {}'.format(box_name, msg)))
+            report.append((last_upload_delta, '* {} - last upload {}'.format(club_id, msg)))
 
     report = create_report(report)
     print(report)

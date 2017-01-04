@@ -45,6 +45,7 @@ class Clubs(object):
     def get(self, club_id):
         club = copy.deepcopy(self._clubs[club_id])
 
+        club['club_id'] = club_id
         club['logo'] = self.get_logo(club_id)
         club['samples'] = self.samples.all().get(club['box_id'])
         club['cover'] = os.path.join(

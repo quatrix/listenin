@@ -1,25 +1,29 @@
 from base_handler import BaseHandler
 
 
+def _get_last_sample_date(club):
+    try:
+        return club['samples'][0]['date']
+    except (IndexError, TypeError):
+        return None
+
+
 class HealthHandler(BaseHandler):
-    def get_last_upload(self, box):
-        try:
-            return self.settings['samples'].all()[box][0]['date']
-        except IndexError:
-            return None
+    def get_last_upload(self, club_id):
+        return _get_last_sample_date(self.settings['clubs'].get(club_id))
 
     def get_all_last_upload(self):
         return {
-            box: {'last_upload': self.get_last_upload(box)}
-            for box in self.settings['samples'].all().keys()
+            club['club_id']: {'last_upload': _get_last_sample_date(club)}
+            for club in self.settings['clubs'].all()
         }
 
     def get(self):
-        box = self.get_argument('box')
+        club_id = self.get_argument('club_id')
 
-        if box == 'all':
+        if club_id == 'all':
             self.finish(self.get_all_last_upload())
         else:
             self.finish({
-                'last_upload': self.get_last_upload(box)
+                'last_upload': self.get_last_upload(club_id)
             })
