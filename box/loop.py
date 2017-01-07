@@ -105,7 +105,7 @@ class ListenIn(object):
             if os.path.exists(f):
                 os.unlink(f)
 
-        rec_cmd = 'rec --no-show-progress -t mp3 -C 0 {} silence 1 0.1 1.7% 1 2.0 1.7% trim 0 {}'.format(
+        rec_cmd = 'rec --no-show-progress -t mp3 -C 0 {} highpass 60 silence 1 0.1 0.5% 1 2.0 0.5% trim 0 {}'.format(
             output_file,
             self.duration,
         )
