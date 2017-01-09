@@ -46,6 +46,11 @@ class ClubsHandler(BaseHandler):
             club['distance'] = self.get_distance_from_client(club['location'])
             club['location__'] = club['location']
 
+            # remove hidden fields
+            for k in club.keys():
+                if k.startswith('_'):
+                    del club[k]
+
         return sorted(
             sorted(clubs, key=itemgetter('distance')),
             key=is_club_not_live

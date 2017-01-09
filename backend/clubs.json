@@ -8,7 +8,7 @@
             "Dancing"
         ], 
         "stopPublishing": 0, 
-        "wifi": "limalima.1", 
+        "_wifi": { "ssid": "whoknows", "psk": "whoknows"},
         "stopRecording": 0, 
         "phone": "+972-3-560-0924", 
         "location": [
@@ -29,7 +29,7 @@
             "Food"
         ], 
         "stopPublishing": 0, 
-        "wifi": "whoknows", 
+        "_wifi": { "ssid": "whoknows", "psk": "whoknows"},
         "stopRecording": 0, 
         "phone": "+972-3-527-7306", 
         "location": [
@@ -48,7 +48,7 @@
             "Small"
         ], 
         "stopPublishing": 0, 
-        "wifi": "whoknows", 
+        "_wifi": { "ssid": "whoknows", "psk": "whoknows"},
         "stopRecording": 0, 
         "phone": "+972-3-716-8221", 
         "location": [
@@ -67,7 +67,7 @@
             "Large"
         ], 
         "stopPublishing": -1, 
-        "wifi": "whoknows", 
+        "_wifi": { "ssid": "whoknows", "psk": "whoknows"},
         "stopRecording": 0, 
         "phone": "+972-52-805-4448", 
         "location": [
@@ -85,7 +85,7 @@
             "Dancing"
         ], 
         "stopPublishing": 0, 
-        "wifi": "whoknows", 
+        "_wifi": { "ssid": "whoknows", "psk": "whoknows"},
         "stopRecording": 0, 
         "phone": "+972-52-642-6532", 
         "location": [
@@ -105,7 +105,7 @@
             "Smoking"
         ], 
         "stopPublishing": 0, 
-        "wifi": "radio_epgb", 
+        "_wifi": { "ssid": "whoknows", "psk": "whoknows"},
         "stopRecording": 0, 
         "phone": "+972-3-5603636", 
         "location": [
@@ -125,7 +125,7 @@
             "Smoking"
         ], 
         "stopPublishing": 0, 
-        "wifi": "whoknows", 
+        "_wifi": { "ssid": "whoknows", "psk": "whoknows"},
         "stopRecording": 0, 
         "phone": "+972-3-510-4435", 
         "location": [
@@ -145,7 +145,7 @@
             "Tables"
         ], 
         "stopPublishing": 0, 
-        "wifi": "whoknows", 
+        "_wifi": { "ssid": "whoknows", "psk": "whoknows"},
         "stopRecording": 0, 
         "phone": "+972-3-510-6430", 
         "location": [
@@ -165,7 +165,7 @@
             "Food"
         ], 
         "stopPublishing": 0, 
-        "wifi": "whoknows", 
+        "_wifi": { "ssid": "whoknows", "psk": "whoknows"},
         "stopRecording": 0, 
         "phone": "+972-3-656-5155", 
         "location": [
@@ -186,7 +186,7 @@
             "Small"
         ], 
         "stopPublishing": 0, 
-        "wifi": "whoknows", 
+        "_wifi": { "ssid": "whoknows", "psk": "whoknows"},
         "stopRecording": 0, 
         "phone": "+972-77-3323118", 
         "location": [
