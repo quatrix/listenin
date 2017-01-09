@@ -60,3 +60,18 @@ class BOHandler(CORSHandler):
         clubs = self.settings['clubs']
         clubs.update(club_id, request)
         self.finish(clubs.get(club_id))
+
+
+class BOWifiHandler(CORSHandler):
+    def get(self):
+        box_id = self.get_club_id()
+        clubs = self.settings['clubs']
+        club = clubs.find_club_by_box_id(box_id)
+
+        if club is None:
+            self.finish({'error': 'box {} not assigned'.format(box_id)})
+
+        if '_wifi' not in club:
+            self.finish({'error': 'club {} has no wifi'.format(club['name'])})
+
+        self.finish(club['_wifi'])

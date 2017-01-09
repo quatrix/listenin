@@ -12,7 +12,7 @@ from spy_handler import SpyHandler
 from health_handler import HealthHandler
 from samples_cache import SamplesCache
 from clubs import Clubs
-from bo_handler import BOHandler
+from bo_handler import BOHandler, BOWifiHandler
 from bo_samples_handler import BOSamplesHandler
 from token_handler import TokenHandler
 
@@ -85,6 +85,7 @@ def main(port, samples_root, base_url, n_samples, sample_interval, acr_key, acr_
             (r"/clubs", ClubsHandler),
             (r"/bo/samples", BOSamplesHandler),
             (r"/bo", BOHandler),
+            (r"/bo/wifi", BOWifiHandler),
             (r"/token", TokenHandler),
             (r"/spy", SpyHandler),
             (r"/health", HealthHandler),

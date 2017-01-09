@@ -79,12 +79,12 @@
     }, 
     "sputnik": {
         "stopRecognition": 0, 
-        "box_id": "sputnik",
+        "box_id": "box-8",
         "name": "Sputnik", 
         "tags": [
             "Dancing"
         ], 
-        "stopPublishing": 0, 
+        "stopPublishing": -1, 
         "_wifi": { "ssid": "whoknows", "psk": "whoknows"},
         "stopRecording": 0, 
         "phone": "+972-52-642-6532", 
