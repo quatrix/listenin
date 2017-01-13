@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from __future__ import print_function
 from subprocess import check_output, STDOUT, CalledProcessError
 from collections import namedtuple
