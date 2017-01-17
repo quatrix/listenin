@@ -74,9 +74,11 @@ class ListenIn(object):
 
         while True:
             try:
+                logging.info('waiting for audio signal')
                 self.led.set('purple')
                 r = self.record_sample()
                 next(r)
+                logging.info('recording')
                 self.led.set('red')
                 sample = next(r)
                 self.led.set('blue')
