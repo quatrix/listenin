@@ -81,6 +81,7 @@ class ListenIn(object):
                 logging.info('recording')
                 self.led.set('red')
                 sample = next(r)
+                logging.info('uploading')
                 self.led.set('blue')
                 t0 = time.time()
                 self.upload_sample(sample)
