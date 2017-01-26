@@ -135,7 +135,7 @@ class ListenIn(object):
         rc = rec_process.wait()
 
         if rc != 0:
-            raise RuntimeError('failed to record: %r', rc)
+            raise RuntimeError('failed to record: return code = {}'.format(rc))
 
 
         normalize_cmd = 'sox --norm {} {}'.format(output_file, processed_file)
