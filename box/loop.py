@@ -29,11 +29,12 @@ def get_duration(f):
 
 
 class ListenIn(object):
-    def __init__(self, token, duration, interval, retrytime):
+    def __init__(self, token, duration, interval, retrytime, last_uploaded_file):
         self.token = token
         self.duration = duration
         self.interval = interval
         self.retrytime = retrytime
+        self.last_uploaded_file = last_uploaded_file
 
         self.led = LED(red=13, green=19, blue=26, initial_color='white')
         self._q = Queue()
@@ -69,6 +70,14 @@ class ListenIn(object):
 
             time.sleep(0.1)
 
+    def write_last_uploaded_ts(self):
+        try:
+            tmp_file = self.last_uploaded_file + '.tmp'
+            open(tmp_file, 'w').write(str(int(time.time())))
+            os.rename(tmp_file, self.last_uploaded_file)
+        except Exception:
+            pass
+
     def listen(self):
         self.start_blinker()
 
@@ -92,6 +101,7 @@ class ListenIn(object):
                 time.sleep(self.retrytime)
                 self._q.put(self.default_blink_interval)
             else:
+                self.write_last_uploaded_ts()
                 logging.info('sample recorded and uploaded, sleeping for %d seconds', self.interval)
                 self.led.set('green')
 
@@ -173,10 +183,12 @@ class ListenIn(object):
 @click.option('--duration', default=20, help='Duration of each sample')
 @click.option('--interval', default=60, help='How often to take a sample')
 @click.option('--retrytime', default=10, help='How much seconds to wait before retrying on failure')
-def main(token_file, duration, interval, retrytime):
+@click.option('--last_uploaded_file', default='/var/lib/listenin-looper/last_uploaded', help='where to put last uploaded timestamp')
+
+def main(token_file, duration, interval, retrytime, last_uploaded_file):
     token = open(token_file).read()
 
-    l = ListenIn(token, duration, interval, retrytime)
+    l = ListenIn(token, duration, interval, retrytime, last_uploaded_file)
     
     try:
         l.listen()
