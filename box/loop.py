@@ -11,9 +11,17 @@ from threading import Thread, Event
 from Queue import Queue, Empty
 from led import LED
 from wave_anylizer import Wave
+from pythonjsonlogger import jsonlogger
 
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+
+logger = logging.getLogger()
+logHandler = logging.StreamHandler()
+formatter = jsonlogger.JsonFormatter('%(message)s %(levelname)s')
+logHandler.setFormatter(formatter)
+logger.addHandler(logHandler)
+logger.setLevel(logging.DEBUG)
+
 
 
 def get_duration(f):
@@ -94,8 +102,8 @@ class ListenIn(object):
                 self.led.set('blue')
                 t0 = time.time()
                 self.upload_sample(sample)
-            except Exception:
-                logging.exception('exception while recording and uploading')
+            except Exception as e:
+                logging.error('%s: %s', e.__class__.__name__, e)
                 self.led.set('orange')
                 self._q.put(self.fast_blinking)
                 time.sleep(self.retrytime)
